@@ -8,11 +8,12 @@ function animate() {
   updateBalloonsPosition()
   updateMonkeysPosition()
   updateArrowsPosition()
+  updateAnimations()
 
   time++; // Increment the time by 1
   
-  if (time % 20 == 0 && counter <= 150) {
-    addBalloon(8)
+  if (time % 25 == 0) { // && counter <= 150
+    addBalloon(9)
     counter++
   }
 
@@ -34,6 +35,7 @@ function printFrame() {
   if (printMenuMonkeyVar) { // if 0 then false
     PrintMenuMonkey()
   }
+  printAnimations()
 
   // print upper layer stuff
   printMoneyHearts()

@@ -11,11 +11,14 @@ class Arrow {
      * @param {number} y - The starting Y position of the arrow.
      * @param {number} type - The arrow's image number.
      * @param {number} speed - The speed of the arrow.
-     * @param {number} startingAngle - The starting angle of the arrow.
+     * @param {number} angle - The starting angle of the arrow.
      * @param {number} moneyMultiplier - The money multiplier.
      * @param {number} [health=1] - The health of the arrow.
      */
-    constructor(x, y, type, strength, speed, startingAngle, moneyMultiplier, health, size, range) {
+    constructor({
+        x, y, type, strength, speed, angle, moneyMultiplier, health,
+        size, range, bomb, armored_balloons
+    }) {
         this.x = x
         this.y = y
         this.type = type
@@ -23,11 +26,13 @@ class Arrow {
         this.START_POSITION_X = x
         this.START_POSITION_Y = y
         this.speed = speed
-        this.angle = startingAngle
+        this.angle = angle
         this.moneyMultiplier = moneyMultiplier
         this.health = health
         this.size = size
         this.range = range
+        this.bomb = bomb
+        this.armored_balloons = armored_balloons
     }
 
     /**
@@ -45,12 +50,34 @@ class Arrow {
         }
     }
 
+    activateBomb() {
+        for (let index = 0; index < balloons.length; index++) {
+            const balloon = balloons[index];
+            if (balloon.hidden) {
+                continue // Skip hidden balloons
+            }
+
+            const collision = checkCollision(this, balloon, this.bomb.radius)
+            if (collision) {
+                balloon.hit(this)
+            }
+        }
+        
+        const animation = new AnimationEffect(
+            this.x,
+            this.y,
+            this.bomb.animation,
+            this.bomb.radius * 2,
+            this.bomb.speed,
+        )
+        animations.push(animation)
+    }
+
     /**
      * Checks if the arrow hits any balloons and handles interactions.
      * @returns {boolean} True if the arrow hits a balloon, otherwise false.
     */
     BalloonHitCheck() {
-        // Check if the arrow hits a balloon
         for (let index = 0; index < balloons.length; index++) {
             const balloon = balloons[index];
             if (balloon.hidden) {
@@ -58,25 +85,34 @@ class Arrow {
             }
             
             
-            const check = checkCollision(this, balloon, BALLOON_SIZE_X)
-            if (check) {
-                balloon.hit(this); // Reduce balloon health and check if popped
-                this.health -= 1; // Decrease arrow's health
-                if (this.health <= 0) {
-                    return true; // Arrow is dead
+            const collision = checkCollision(this, balloon, BALLOON_SIZE_X)
+            if (collision) {
+                if (!this.bomb) {
+                    balloon.hit(this); // Reduce balloon health and check if popped
+                    this.health -= 1; // Decrease arrow's health
+                    if (this.health <= 0) {
+                        this.deleteArrow()
+                        return
+                    }
+                } else {
+                    this.activateBomb()
+                    this.deleteArrow()
+                    return
                 }
             }
         }
-        return false; // Arrow did not hit any balloon
+        
+        
     }
 
     /**
      * Moves the arrow, updating its position and checking for collisions.
     */
     moveArrow() {
-        this.updatePosition();
-        if (this.BalloonHitCheck() || this.getRadius > 1000) {
-            this.deleteArrow(); // Delete arrow if it's dead
+        this.updatePosition()
+        this.BalloonHitCheck()
+        if (this.getRadius > 1000) {
+            this.deleteArrow() // Delete arrow if it's dead
         }
     }
 

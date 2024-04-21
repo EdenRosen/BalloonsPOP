@@ -25,7 +25,7 @@ const BALLOONS_INFO = [ // money is the money the player gets every time the bal
 ];
 
 class Balloon {
-	constructor(x, y, type, next = 0) {
+	constructor({ x, y, type, next = 0 }) {
 		// x, y and next are the coordinates of the balloon on the screen
 		this.x = x;
 		this.y = y;
@@ -37,15 +37,14 @@ class Balloon {
 		this.pop = false
 	}
 
-	ty() {
-		return this.type
-	}
-
 	// hit function to handle when balloon takes damage
 	hit(arrow) {
 		// Handle when balloon takes damage
-		let damage = arrow.strength;
-		let health = this.health - damage;
+		let damage = arrow.strength
+		if (this.type == 8 & !arrow.armored_balloons) {
+			damage = 0
+		}
+		let health = this.health - damage
 
 		// Keep decrementing health until it becomes non-positive
 		while (health <= 0) {
@@ -80,7 +79,12 @@ class Balloon {
 		var children = balloonInfo.children // Get the children array from the balloon info object
 		children.forEach(child => { // Loop through each child object in the children array
 			for (let i = 0; i < child.count; i++) { // Loop through the number of children to create
-				var b = new Balloon(this.x, this.y, child.type, this.next) // Create a new balloon object with the child type, position, and next value of the parent balloon
+				var b = new Balloon({
+					x: this.x,
+					y: this.y,
+					type: child.type,
+					next: this.next
+				}) // Create a new balloon object with the child type, position, and next value of the parent balloon
 				balloons.push(b) // Add the new balloon object to the balloons array
 				for (let m = 0; m < i; m++) { // Move the balloon multiple times based on the current index to avoid overlapping balloons
 					b.moveBalloon()
@@ -121,7 +125,7 @@ class Balloon {
 		// get balloon info
 		// get the balloon object from the 'balloons' array using the provided 'index'
 		const balloonInfo = BALLOONS_INFO[this.type-1] // get the balloon information from 'BALLOONS_INFO' using the balloon type
-		var speed = balloonInfo.speed * SPEED_FACTOR // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
+		var speed = balloonInfo.speed * speedFactor // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
 		var next = WAYPOINTS[this.next] // get the next waypoint from the 'WAYPOINTS' array using the 'next' property of the balloon object
 
 		// calculate balloon movement

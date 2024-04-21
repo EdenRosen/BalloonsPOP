@@ -3,6 +3,7 @@ const MONKEY_SIZE = 80
 const MONK_COOLDOWN = 0
 const TRAIL_MARGIN = 50
 const MONKEY_RADIUS = 32
+const LIMIT_ACTIVATED = 2
 
 // Monkey data configuration
 
@@ -14,25 +15,18 @@ class Monkey {
      * @param {number} x - The initial x-coordinate of the monkey.
      * @param {number} y - The initial y-coordinate of the monkey.
      * @param {number} type - The type of the monkey.
-     * @param {number} arrowType - The type of arrow the monkey uses.
-     * @param {number} strength - The strength of the monkey's attack.
-     * @param {number} arrowHealth - The health of the monkey's attack.
-     * @param {number} range - The attack range of the monkey.
-     * @param {number} cooldown - The cooldown time between attacks.
-     * @param {number} [price=0] - The amount of price the monkey has.
-     * @param {number} [size=1] - The size factor of the monkey.
-     * @param {number} [level=1] - The level of the monkey.
      */
-    constructor(x, y, type=1, level=1, data = MONKEY_DATA[type-1][level-1]) {
+    constructor({ x, y, type=1 }) {
         // Initialize monkey properties
         this.type = type
-        this.level = level
+        this.setOrigin()
+        const data = MONKEY_DATA[this.type-1]
+        var levels = []
+        for (let i = 1; i < data.length; i++) {
+            levels.push(0)
+        }
 
-        this.arrow = data.arrow
-        this.range = data.range
-        this.cooldown = data.cooldown
-        this.price = data.price
-        this.size = data.size ? data.size : 1
+        this.levels = levels
 
         this.x = x
         this.y = y
@@ -46,6 +40,19 @@ class Monkey {
         this.menuOpen = false
         this.bought = false
         this.moneyMultiplier = 1
+        this.alternating_counter = 0
+    }
+
+    setOrigin() {
+        const data = MONKEY_DATA[this.type-1]
+        const origin = JSON.parse(JSON.stringify(data[0].origin))
+        this.arrow = origin.arrow
+        this.range = origin.range
+        this.cooldown = origin.cooldown
+        this.price = origin.price
+        this.size = origin.size ? origin.size : 1
+        this.armored_balloons = origin.armored_balloons ? origin.armored_balloons : false
+        this.base_size_ratio = origin.base_size_ratio ? origin.base_size_ratio : 0.8
     }
 
     // ... (other functions)
@@ -64,37 +71,60 @@ class Monkey {
      * Makes the monkey shoot an arrow.
      */
     shoot() {
+        // let clone = pop.cloneNode(true)
+        // clone.volume = 0.02;
+        // clone.volume = 0
+        // clone.play()
+
         const arr = this.arrow
         var speed = arr.speed ? arr.speed : 1
-        var size = arr.size ? arr.size : 1
-        var offsets = arr.offset ? arr.offset : [[0, 0]]
-        var range = arr.range ? arr.range : 3000
         speed *= ARROW_DEFAULT_SPEED
-        var a2 = this.angle * -RADIAN
+        const size = arr.size ? arr.size : 1
+        const health = arr.health ? arr.health : 1
+        const offsets = arr.offset ? arr.offset : [[0, 0]]
+        const range = arr.range ? arr.range : 3000
+        const a2 = this.angle * -RADIAN
+        const bomb = arr.bomb ? arr.bomb : null
+        const alternating = arr.alternating && offsets.length > 1 ? arr.alternating : false
+        const angleError = arr.angleError ? arr.angleError : 0
+        const angleOffset = Math.random()*angleError*2 - angleError
+        const angle = this.angle + angleOffset
 
-        for (let i = 0; i < offsets.length; i++) {
-            var offsetX = offsets[i][1]
-            var offsetY = offsets[i][0]
+        if (alternating) {
+            shootByOffset(this.alternating_counter, this)
+            this.alternating_counter = (this.alternating_counter + 1) % offsets.length
+        } else {
+            for (let i = 0; i < offsets.length; i++) {
+                shootByOffset(i, this)
+            }
+        }
+        
+
+        function shootByOffset(index, me) {
+            var offsetX = offsets[index][1]
+            var offsetY = offsets[index][0]
             var a1 = Math.atan2(offsetY, offsetX)
             var a3 = a2 + a1
 
             var mag = calcMag(0, 0, offsetX, offsetY)
 
-            var arrX = Math.cos(a3) * mag + this.x
-            var arrY = Math.sin(a3) * mag + this.y
+            var arrX = Math.cos(a3) * mag + me.x
+            var arrY = Math.sin(a3) * mag + me.y
 
-            
-            let arrow = new Arrow(
-                arrX, arrY,
-                arr.type,
-                arr.strength,
-                speed,
-                this.angle,
-                this.moneyMultiplier,
-                arr.health,
+            let arrow = new Arrow({
+                x: arrX,
+                y: arrY,
+                type: arr.type,
+                strength: arr.strength,
+                speed: speed,
+                angle: angle,
+                moneyMultiplier: me.moneyMultiplier,
+                health,
                 size,
                 range,
-            )
+                bomb,
+                armored_balloons: me.armored_balloons
+            })
             arrows.push(arrow)
 
         }
@@ -124,7 +154,7 @@ class Monkey {
             } else if (Math.abs(slope) == 0) { // if the trail line is horizontal
                 x = p3.x
                 y = p1.y
-            } else { // neither
+            } else { // neitherH
                 let b = -slope*p1.x+p1.y
                 let proj = this.projection({x: p3.x, y: p3.y-b}, {x: p1.x, y: p1.y-b})
                 x = proj.x
@@ -141,6 +171,43 @@ class Monkey {
 
         }
         return false
+    }
+
+    canBuy(pathIndex) {
+        const monkeyDATA = MONKEY_DATA[this.type-1][pathIndex+1][this.levels[pathIndex]]
+        let canBuy = true
+        if (this.levels[pathIndex] >= LIMIT_ACTIVATED) {
+            for (let j = 0; j < this.levels.length; j++) {
+                if (this.levels[j] > LIMIT_ACTIVATED & j != pathIndex){
+                    canBuy = false
+                }
+            }
+        }
+        canBuy = canBuy && monkeyDATA.price < money
+        return canBuy
+    }
+
+    getActivated() {
+        var activated = null
+        var maxIndex = 0
+        // find index of highest level from all upgrade sets
+        // reason: not supposed to be activated
+        for (let i = 0; i < this.levels.length; i++) {
+            if (this.levels[i] > this.levels[maxIndex]) {
+                maxIndex = i
+            }
+        }
+        // checks if there is a different path that has came to activated level
+        for (let i = 0; i < this.levels.length; i++) {
+            if (this.levels[i] == LIMIT_ACTIVATED & i != maxIndex) {
+                if (activated == null) {
+                    activated = []
+                }
+                activated.push(i)
+            }
+        }
+        // returns the index of the activated upgrade set
+        return activated
     }
 
     projection(a, b) {
@@ -178,6 +245,34 @@ class Monkey {
         return false;
     }
 
+    findMonkeyPrintImageSkinOrBase() {
+        let returnSkin = [undefined, undefined]
+        let base_image = monkeyImages[this.type-1].base
+        if (base_image) {
+            returnSkin[0] = base_image
+        }
+        
+        const skins = monkeyImages[this.type-1]
+        var skin = skins.origin
+        var maxIndex = 0
+        for (let i = 0; i < this.levels.length; i++) {
+            if (this.levels[i] > this.levels[maxIndex]) {
+                maxIndex = i
+            }
+        }
+
+        const level = this.levels[maxIndex]
+        if (level >= 1) {
+            skin = skins.levels[maxIndex][level-1].normal
+            const activatedSkin = skins.levels[maxIndex][level-1].activated
+            if (this.getActivated() != null && activatedSkin) {
+                skin = activatedSkin
+            }
+        }
+        returnSkin[1] = skin
+        return returnSkin
+    }
+
     print() {
         // print range
         if (this.showRange | this.relocating | this.menuOpen) {
@@ -190,29 +285,29 @@ class Monkey {
 
         // print monkey
         let print_size = MONKEY_SIZE*this.size
-        let base_image = monkeyImages[this.type-1].base
-        if (base_image) {
-            let print_size_base = print_size*0.8
-            c.img(this.x,this.y,print_size_base,print_size_base, base_image)
+        let monkeyImage = this.findMonkeyPrintImageSkinOrBase()
+        if (monkeyImage[0] != undefined) {
+            let printSizeBase = print_size*this.base_size_ratio
+            c.img(this.x,this.y,printSizeBase,printSizeBase, monkeyImage[0])
         }
-        c.img(this.x,this.y,print_size,print_size, monkeyImages[this.type-1].skin[0], this.angle-90)
+        c.img(this.x,this.y,print_size,print_size, monkeyImage[1], this.angle-90)
+        
     }
 
     findFarthestballoon() { // function to find the farthest balloon from the monkey
         let farthest; // variable to store the farthest balloon found so far
-        for (let index = 0; index < balloons.length; index++) { // iterate over all balloons in the 'balloons' array
-            const balloon = balloons[index]; // get the balloon object from the 'balloons' array using the current index
+        for (const balloon of balloons) {
             if (balloon.hidden) {
                 continue
             }
-            let disB = calcMag(balloon.x, balloon.y, monkey.x, monkey.y) // calculate the distance between the current balloon and the monkey using the 'calcMag' function and store it in the 'disB' variable
+            let disB = calcMag(balloon.x, balloon.y, this.x, this.y) // calculate the distance between the current balloon and the monkey using the 'calcMag' function and store it in the 'disB' variable
             if (farthest == undefined) { // if no farthest balloon was found yet
-                if (disB <= monkey.range) { // if the current balloon is within the monkey's range
+                if (disB <= this.range) { // if the current balloon is within the monkey's range
                     farthest = balloon; // set the current balloon as the farthest
                 }
             } else {
                 // farthest on track
-                if (disB <= monkey.range && balloon.next >= farthest.next && balloon.calculatePercentDoneOfWayPoint() < farthest.calculatePercentDoneOfWayPoint()) { // if the current balloon is within the monkey's range, is farther on the track than the current farthest, and has completed less of its current waypoint than the current farthest balloon
+                if (disB <= this.range && balloon.next >= farthest.next && balloon.calculatePercentDoneOfWayPoint() < farthest.calculatePercentDoneOfWayPoint()) { // if the current balloon is within the monkey's range, is farther on the track than the current farthest, and has completed less of its current waypoint than the current farthest balloon
                     farthest = balloon; // set the current balloon as the new farthest
                 }
             }
@@ -230,9 +325,9 @@ class Monkey {
         } else if (time % this.cooldown == MONK_COOLDOWN) { // if the time is a multiple of the monkey's cooldown time
             this.shoot() // make the monkey shoot using the 'shoot' function of the monkey object
         }
-        var angle = Math.atan2(next.y - monkey.y, next.x - monkey.x) // calculate the angle between the monkey and the farthest balloon using 'Math.atan2'
+        var angle = Math.atan2(next.y - this.y, next.x - this.x) // calculate the angle between the monkey and the farthest balloon using 'Math.atan2'
         angle /= -RADIAN // convert the angle from radians to degrees by dividing by the constant 'RADIAN' and negate the result
-        monkey.angle = angle // update the position of the monkey using the 'updatePosition' function of the monkey object with the calculated angle
+        this.angle = angle // update the position of the monkey using the 'updatePosition' function of the monkey object with the calculated angle
     }
     
 }

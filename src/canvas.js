@@ -40,6 +40,30 @@ class Canvas {
     this.ctx.restore();
   }
 
+  // same as normal img but only if the actual img is bigger than the canvas's area. So you cut it to the size on the canvas you need.
+  img2(x, y, w, h, color = "black", deg = 0) { // color is the image source
+    // Convert the given degree value to radians.
+    const rad = (-deg * Math.PI) / 180;
+    // If the `color` parameter is a string, return immediately.
+    if (typeof color == "string") {
+      return;
+    }
+
+    // Calculate the x and y coordinates of the top left corner of the image.
+    x -= w / 2;
+    y -= h / 2;
+    // Save the current state of the 2D context.
+    this.ctx.save();
+    // Translate the origin of the 2D context to the center of the image.
+    this.ctx.translate(x + w / 2, y + h / 2);
+    // Rotate the 2D context by the given angle.
+    this.ctx.rotate(rad);
+    // Draw the given image at the center of the 2D context.
+    this.ctx.drawImage(color, 0, 0, w, h, -w / 2, -h / 2, w, h);
+    // Restore the previous state of the 2D context.
+    this.ctx.restore();
+  }
+
   // Define a function named oval with five parameters: x, y, w, h, color, and deg.
   oval(x, y, w, h, color = "black", deg = 0, opacity = 1) {
     // Log the value of the color parameter to the console.
@@ -105,9 +129,10 @@ class Canvas {
   }
 
   // Define a function named text with five parameters: content, x, y, size, and color.
-  text(content, x, y, size = 30, color = "black", bold = false, font = "Arial") {
+  text(content, x, y, size = 30, color = "black", bold = false, font = "Arial", isMeasureText = false, isStroke = "color") {
     // Set the fill style of the context to the color parameter.
     this.ctx.fillStyle = color;
+    
     // Set the font of the context to the size and font parameters.
     let str = ""
     if (bold) {
@@ -115,6 +140,15 @@ class Canvas {
     }
     this.ctx.font = `${str} ${size}px ${font}`;
     // Draw the specified text at the specified position.
+    // if you want it to be centered from the middle of the txt
+    if (isMeasureText) {
+      x -= this.ctx.measureText(content).width/2
+    }
     this.ctx.fillText(content, x, y);
+    if (isStroke != "color") {
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = isStroke;
+      ctx.strokeText(content, x, y);
+    }
   }
 }

@@ -41,40 +41,27 @@ const TUNNELS = [
     {x: 547, y: 760, w: 340, h: 200, under: [15]},
 ]
 
+let pop = new Audio('../sounds/pop.mp3');
 // Gameplay settings
-const SPEED_FACTOR = 2.8 // 0.8
 const START_MONEY = 8100 // 800 is good
 const START_LIVES = 500
+const TABLE_HEIGHT = 300
+const NEVER_RELOCATE = false
 
 //------------------------------------VARIABLES----------------------------------------\\
 
-// Monkey menu variables
-const TABLE_HEIGHT = 300
-printMenuMonkeyVar = 0
+// Other constant
 
 // Gameplay state
-const NEVER_RELOCATE = false
+var printMenuMonkeyVar = false
 var lives = START_LIVES
 var running = false
 var balloons = []
 var monkeys = []
 var arrows = []
+var animations = []
 var time = 0
-
-const GENERAL_IMAGES_NAMES = ['pop', 'heart', 'coins',]
-const MONKEY_IMAGES_NAMES = [
-    'monkey1', 'monkey1_P',
-    'monkey2', 'monkey2_P',
-    'monkey3', 'monkey3_P',
-    'monkey4', 'monkey4_P', 'monkey4_B',
-]
-
-// Image resources
-var mapImages = []
-var balloonImages = []
-var monkeyImages = []
-var arrowImages = []
-var generalImages = []
+var speedFactor = 1.8 // 1.8
 
 // Counter and money
 var counter = 0
@@ -82,46 +69,43 @@ var relocateMonkey = 0
 var createMonkey = 0 // the kind of monkey from the menu, 1,2,3...
 var money = START_MONEY
 
+// lowerMenu
+const RELOCATE_BOX_INFO = {
+    x: (CW*0.1)/2 + 150 + TABLE_HEIGHT*0.5,
+    y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
+    w: CW*0.13,
+    h: TABLE_HEIGHT*0.25,
+    txt: - TABLE_HEIGHT/8 - 5,
+}
+
+const SELL_BOX_INFO = {
+    x: RELOCATE_BOX_INFO.x + RELOCATE_BOX_INFO.w + 50 ,
+    y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
+    w: CW*0.13,
+    h: TABLE_HEIGHT*0.25,
+    txt: - TABLE_HEIGHT/8 - 5,
+}
+
+const IMP_BOX_INFO = {
+    x: SELL_BOX_INFO.x + SELL_BOX_INFO.w + 20,
+    y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
+    w: TABLE_HEIGHT*0.6,
+    h: TABLE_HEIGHT*0.6,
+    txt: - TABLE_HEIGHT/3 - 5,
+}
+
+// const IMP_BOX_INFO_RIGHT = {
+//     x: IMP_BOX_INFO.x + IMP_BOX_INFO.w + 120 ,
+//     y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
+//     w: TABLE_HEIGHT*0.6,
+//     h: TABLE_HEIGHT*0.6,
+//     txt: - TABLE_HEIGHT/3 - 5,
+// }
 //---------------------------------------SETUP----------------------------------------------\\
 
 canvas.style.width = `${CANVAS_CSS_WIDTH}px` // setting canvas width in the website
 
-function loadImages(length, folderName, nameType, names=[]) {
-    var namesGiven = names.length > 0
-    var images = []
-    for (let i = 0; i < length; i++) {
-        var image = new Image()
-        var name = namesGiven ? nameType + names[i] : nameType + (i+1)
-        image.src = `../images/${folderName}/${name}.png`
-        images.push(image)
-    }
-    return images
-}
 
-generalImages = loadImages(GENERAL_IMAGES_NAMES.length, 'general', '', GENERAL_IMAGES_NAMES)
-arrowImages = loadImages(6, 'arrows', 'a')
-balloonImages = loadImages(12, 'balloons', 'b')
-mapImages = loadImages(1, 'maps', 'map')
-
-// load monkey images
-for (let i = 0; i < MONKEY_IMAGES_NAMES.length; i++) {
-    var image = new Image()
-    var name = MONKEY_IMAGES_NAMES[i]
-    image.src = `../images/monkeys/${name}.png`
-    if (name.includes('_')) {
-        index1 = name.indexOf('y')
-        index2 = name.indexOf('_')
-        id = name.substring(index1+1, index2)
-        id = parseInt(id)-1
-        if (name[index2+1] == 'P') {
-            monkeyImages[id].profile = image
-        } else if (name[index2+1] == 'B') {
-            monkeyImages[id].base = image
-        }
-    } else {
-        monkeyImages.push({skin: [image], profile: 0, base: 0})
-    }
-}
 
 // monkeyImages = loadImages(6, 'arrows', 'a') ----------- fix
 
@@ -136,6 +120,7 @@ function start() {
     if (running) {
         running = false
     } else {
+        restart()
         running = true
         animate()
     }
@@ -149,6 +134,7 @@ function restart() {
     balloons = []
     monkeys = []
     arrows = []
+    animations = []
     time = 0
 
     // Counter and money
@@ -156,6 +142,7 @@ function restart() {
     relocateMonkey = 0
     createMonkey = 0
     money = START_MONEY
+    printMenuMonkeyVar = false
 
     updateStartButton()
     printFrame()
@@ -174,12 +161,10 @@ function gameOverCheck() {
 }
 
 function updateStartButton() {
-
-    var startButton = document.getElementById("startButton")
     if (running) {
-        startButton.innerText = "PAUSE"
+        $('#startButton').text("PAUSE")
     } else {
-        startButton.innerText = "PLAY"
+        $('#startButton').text("PLAY")
     }
     
 }
@@ -195,27 +180,30 @@ function insideTunnel(p, index) {
     return false
 }
 
+//------------------------------------UPDATE ANIMATIONS---------------------------------------\\
 
+function updateAnimations() { // called every frame
+    for (const animation of animations) {
+        animation.updateFrame()
+    }
+}
 
 //------------------------------------UPDATE POSITION---------------------------------------\\
 
 function updateArrowsPosition() { // called every frame
-    for (let index = 0; index < arrows.length; index++) {
-        var arrow = arrows[index]
+    for (const arrow of arrows) {
         arrow.moveArrow()
     }
 }
 
 function updateBalloonsPosition() { // called every frame
-    for (let index = 0; index < balloons.length; index++) {
-        balloon = balloons[index]
+    for (const balloon of balloons) {
         balloon.moveBalloon()
     }
 }
 
 function updateMonkeysPosition() { // called every frame
-    for (let i = 0; i < monkeys.length; i++) {
-        monkey = monkeys[i]
+    for (const monkey of monkeys) {
         monkey.moveMonkey()
     }
 }
@@ -231,30 +219,32 @@ function printBackground() {
 }
 
 function printTunnels() {
-    for (let i = 0; i < TUNNELS.length; i++) {
-        t = TUNNELS[i]
+    for (const t of TUNNELS) {
         c.rect(t.x, t.y, t.w, t.h)
     }
 }
 
-function printBalloons() { // This function handles all balloons graphics
-    for (let index = 0; index < balloons.length; index++) {
-        const balloon = balloons[index];
+function printBalloons() {
+    for (const balloon of balloons) {
         balloon.print()
     }
 }
 
-function printMonkeys() { // handles all monkeys graphics
-    for (let index = 0; index < monkeys.length; index++) {
-        const monkey = monkeys[index];
+function printMonkeys() {
+    for (const monkey of monkeys) {
         monkey.print()
     }
 }
 
 function printArrows() {
-    for (let index = 0; index < arrows.length; index++) { // Loop through each arrow in the arrows array
-        const arrow = arrows[index]
+    for (const arrow of arrows) {
         arrow.print()
+    }
+}
+
+function printAnimations() {
+    for (const animation of animations) {
+        animation.print()
     }
 }
 
@@ -306,10 +296,10 @@ function handleMonkeyRelocation(event, mouse) {
                 mr.relocating = false
                 mr.menuOpen = false
             }
-            console.log(monkeys[bestIndex])
+            
             printMenuMonkeyVar = bestIndex+1 // can be zero
             monkeys[bestIndex].menuOpen = true
-            // stoping before relocation so menu opens
+            // stop before relocation so menu opens
             return true
         }
         if (printMenuMonkeyVar != 0) {
@@ -356,28 +346,18 @@ function handleMonkeyRelocation(event, mouse) {
 addEventListener('click', (event) => { // add an event listener to the click event
     var click = canvasClick(event)
     let mouse = getMousePos(event)
-    console.log("click")
     if (click != 'outside_canvas') { // canvas is clicked
         if (click == 'side_menu') { // menu is clicked
             let index = menu_click(mouse)
-            if (index != 0) {
+            if (index < 0) {
+                // nothing, changed the speed
+            } else if (index != 0) {
                 createMonkey = index
             } else {
                 relocateMonkey = 0
             } 
         } else if (click == 'monkey_menu') { // when player decided to click a monkey, opens menu
-            console.log("checking here")
-            if (isInsideRectangle(mouse.x, mouse.y, (CW*0.1)/2 + 150 + TABLE_HEIGHT*0.5, CH - TABLE_HEIGHT/2, CW*0.05, TABLE_HEIGHT*0.2)) {
-                console.log("gonna start relocation soon, or never relocate")
-                if (NEVER_RELOCATE) {
-                    return false
-                }
-                bestIndex = printMenuMonkeyVar
-                relocateMonkey = bestIndex // we start counting from zero but it doesn't count because 0 means false
-                monkeys[bestIndex-1].relocating = true
-                // reset the menu so that the player see all map
-                printMenuMonkeyVar = 0
-            }
+            handleMonkeyMenu(mouse)
         } else if (click == 'map') { // map is clicked
             relocation = handleMonkeyRelocation(event, mouse)
         }
@@ -396,7 +376,7 @@ addEventListener('mousemove', (event) => {
                 printMenuMonkeyVar = 0
             }
             index = createMonkey
-            new_monkey = new Monkey(mouse.x, mouse.y, index)
+            new_monkey = new Monkey({ x: mouse.x, y: mouse.y, type: index })
             monkeys.push(new_monkey)
             createMonkey = 0
             relocateMonkey = monkeys.length
@@ -452,7 +432,7 @@ function getMousePos(evt) { // gives the position of the  mouse on the canvas
 function addBalloon(type) { // add balloon to the game
     nextIndex = 0
     next = WAYPOINTS[nextIndex]
-    balloons.push(new Balloon(next.x, next.y, type, nextIndex))
+    balloons.push(new Balloon({ x: next.x, y: next.y, type, next: nextIndex }))
 }
 
 function checkCollision(object1, object2, minDistance) {
