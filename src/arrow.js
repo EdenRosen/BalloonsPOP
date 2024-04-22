@@ -17,7 +17,7 @@ class Arrow {
      */
     constructor({
         x, y, type, strength, speed, angle, moneyMultiplier, health,
-        size, range, bomb, armored_balloons
+        size, range, bomb, armoredBalloons, monkeyParent
     }) {
         this.x = x
         this.y = y
@@ -32,15 +32,16 @@ class Arrow {
         this.size = size
         this.range = range
         this.bomb = bomb
-        this.armored_balloons = armored_balloons
+        this.armoredBalloons = armoredBalloons
+        this.monkeyParent = monkeyParent
     }
 
     /**
      * Updates the position of the arrow based on its angle and speed.
     */
     updatePosition() {
-        var dx = this.speed * Math.cos(-(this.angle) * Math.PI / 180)
-        var dy = this.speed * Math.sin(-this.angle * Math.PI / 180)
+        var dx = this.speed * (speedFactor)/GAME_SPEEDS[0] * Math.cos(-(this.angle) * Math.PI / 180)
+        var dy = this.speed * (speedFactor)/GAME_SPEEDS[0] * Math.sin(-this.angle * Math.PI / 180)
         var dr = calcMag(0, 0, dx, dy)
         this.range -= dr
         this.x += dx
@@ -63,13 +64,13 @@ class Arrow {
             }
         }
         
-        const animation = new AnimationEffect(
-            this.x,
-            this.y,
-            this.bomb.animation,
-            this.bomb.radius * 2,
-            this.bomb.speed,
-        )
+        const animation = new AnimationEffect({
+            x: this.x,
+            y: this.y,
+            name: this.bomb.animation,
+            size: this.bomb.radius * 2,
+            speed: this.bomb.speed * (speedFactor)/GAME_SPEEDS[0],
+        })
         animations.push(animation)
     }
 
@@ -87,6 +88,7 @@ class Arrow {
             
             const collision = checkCollision(this, balloon, BALLOON_SIZE_X)
             if (collision) {
+                //hit the balloon...
                 if (!this.bomb) {
                     balloon.hit(this); // Reduce balloon health and check if popped
                     this.health -= 1; // Decrease arrow's health
@@ -111,7 +113,7 @@ class Arrow {
     moveArrow() {
         this.updatePosition()
         this.BalloonHitCheck()
-        if (this.getRadius > 1000) {
+        if (this.getRadius() > 1000) {
             this.deleteArrow() // Delete arrow if it's dead
         }
     }

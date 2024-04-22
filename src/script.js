@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d')
 const c = new Canvas(canvas)
 
 // Canvas dimensions
-const CANVAS_CSS_WIDTH = 800 // in pixels
+// const CANVAS_CSS_WIDTH = 800 // in pixels
 const CW = 1700 // canvas width
 const CH = 1080 // canvas height
 canvas.width = CW
@@ -43,10 +43,13 @@ const TUNNELS = [
 
 let pop = new Audio('../sounds/pop.mp3');
 // Gameplay settings
-const START_MONEY = 8100 // 800 is good
+const START_MONEY = 5800 // 800 is good
 const START_LIVES = 500
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
+const FRAMES_IN_SECOND = 30
+const GAME_SPEEDS = [1.8,3.6,5.4]
+const TIME_BETWEEN_ROUND = 100
 
 //------------------------------------VARIABLES----------------------------------------\\
 
@@ -64,46 +67,22 @@ var time = 0
 var speedFactor = 1.8 // 1.8
 
 // Counter and money
-var counter = 0
 var relocateMonkey = 0
 var createMonkey = 0 // the kind of monkey from the menu, 1,2,3...
 var money = START_MONEY
+var coins = []
 
-// lowerMenu
-const RELOCATE_BOX_INFO = {
-    x: (CW*0.1)/2 + 150 + TABLE_HEIGHT*0.5,
-    y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
-    w: CW*0.13,
-    h: TABLE_HEIGHT*0.25,
-    txt: - TABLE_HEIGHT/8 - 5,
-}
+// Rounds
+var currentRound = 1
+var roundTime = -50
+var roundClusters = []
 
-const SELL_BOX_INFO = {
-    x: RELOCATE_BOX_INFO.x + RELOCATE_BOX_INFO.w + 50 ,
-    y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
-    w: CW*0.13,
-    h: TABLE_HEIGHT*0.25,
-    txt: - TABLE_HEIGHT/8 - 5,
-}
 
-const IMP_BOX_INFO = {
-    x: SELL_BOX_INFO.x + SELL_BOX_INFO.w + 20,
-    y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
-    w: TABLE_HEIGHT*0.6,
-    h: TABLE_HEIGHT*0.6,
-    txt: - TABLE_HEIGHT/3 - 5,
-}
 
-// const IMP_BOX_INFO_RIGHT = {
-//     x: IMP_BOX_INFO.x + IMP_BOX_INFO.w + 120 ,
-//     y: CH - TABLE_HEIGHT/2 + TABLE_HEIGHT/16,
-//     w: TABLE_HEIGHT*0.6,
-//     h: TABLE_HEIGHT*0.6,
-//     txt: - TABLE_HEIGHT/3 - 5,
-// }
+
 //---------------------------------------SETUP----------------------------------------------\\
 
-canvas.style.width = `${CANVAS_CSS_WIDTH}px` // setting canvas width in the website
+// canvas.style.width = `${CANVAS_CSS_WIDTH}px` // setting canvas width in the website
 
 
 
@@ -112,7 +91,7 @@ canvas.style.width = `${CANVAS_CSS_WIDTH}px` // setting canvas width in the webs
 setTimeout(updateOnce, 50)
 function updateOnce() {
     printFrame()
-    print_menu()
+    printMenu()
     start()
 }
 
@@ -138,11 +117,16 @@ function restart() {
     time = 0
 
     // Counter and money
-    counter = 0
     relocateMonkey = 0
     createMonkey = 0
     money = START_MONEY
     printMenuMonkeyVar = false
+
+    // Rounds
+    
+    currentRound = 25
+    roundTime = -50
+    roundClusters = []
 
     updateStartButton()
     printFrame()
@@ -215,8 +199,9 @@ function printBackground() {
     if (SHOW_WAY_LINES) {
         c.line(WAYPOINTS, "gray", WAY_LINE_WIDTH)
     }
-    print_menu();
+    
 }
+
 
 function printTunnels() {
     for (const t of TUNNELS) {
@@ -231,14 +216,53 @@ function printBalloons() {
 }
 
 function printMonkeys() {
-    for (const monkey of monkeys) {
-        monkey.print()
+    var printOrder = []
+    var relocatingMonkeys = []
+    var factories = []
+    for (const index in monkeys) {
+        const monkey = monkeys[index]
+        if (monkey.relocating) {
+            relocatingMonkeys.push(index)
+            continue
+        }
+        if (true) {
+        // if (monkey.factory) {
+            // putting factories in order by their y value - end goal is sorted factories by y to print them correctly
+            let i = 0
+            while (i < factories.length && monkeys[factories[i]].y < monkey.y) {
+                i++
+            }
+            factories.splice(i, 0, index)
+            continue
+        }
+        var layer = monkey.levels[monkey.getMainPath()]+1
+        while (printOrder.length <= layer) {
+            printOrder.push([])
+        }
+        printOrder[layer].push(index)
+    }
+    for (const layer of printOrder) {
+        for (const index of layer) {
+            monkeys[index].print()
+        }
+    }
+    for (const index of factories) {
+        monkeys[index].print()
+    }
+    for (const index of relocatingMonkeys) {
+        monkeys[index].print()
     }
 }
 
 function printArrows() {
     for (const arrow of arrows) {
         arrow.print()
+    }
+}
+
+function printCoins() {
+    for (let coin = 0; coin < coins.length; coin++) {
+        coin.print()
     }
 }
 
@@ -254,11 +278,11 @@ function printMoneyHearts() {
     // lives
     var livesP = lives < 0 ? 0 : lives
     c.img(xStart, 50, 60, 60, generalImages[1])
-    c.text(livesP, 100, 65, 45, "black", true, "Sans-serif")
+    c.text(livesP, 100, 65, 45, "white", true, "Sans-serif", false, isStroke='black')
 
     // money
     c.img(xStart + offset, 50, 60, 60, generalImages[2])
-    c.text("$" + money, 110 + offset, 65, 45, "black", true, "Sans-serif")
+    c.text("$" + money, 110 + offset, 65, 45, "white", true, "Sans-serif", false, isStroke='black')
 }
 
 //-----------------------------MONKEY'S RELOCATION AND PURCHASE--------------------------------\\
@@ -419,7 +443,7 @@ function canvasClick(event) { // return what area of the page was clicked
 
 function getMousePos(evt) { // gives the position of the  mouse on the canvas
     let rect = canvas.getBoundingClientRect()
-    let canvas_ratio = CW / CANVAS_CSS_WIDTH
+    let canvas_ratio = CW / $('canvas').width()
     return {
         x: (evt.clientX - rect.left)*canvas_ratio,
         y: (evt.clientY - rect.top)*canvas_ratio

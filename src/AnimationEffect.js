@@ -1,5 +1,5 @@
 class AnimationEffect {
-    constructor(x, y, name, size, speed) {
+    constructor({ x, y, name, size, speed }) {
         this.x = x
         this.y = y
         this.name = name
@@ -8,7 +8,7 @@ class AnimationEffect {
         this.speed = speed
     }
 
-    updateFrame() {
+    updateFrame(terminal=true) {
         if (this.frame == 0) {
             this.frame = 1
         } else {
@@ -16,7 +16,12 @@ class AnimationEffect {
         }
         const frameLimit = animationsData[this.name].length
         if (this.frame >= frameLimit+1) {
-            this.delete()
+            if (terminal) {
+                this.delete()
+            } else {
+                this.frame = 1
+            }
+            
         }
     }
 

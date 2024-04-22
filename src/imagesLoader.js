@@ -1,11 +1,13 @@
 const GENERAL_IMAGES_NAMES = ['pop', 'heart', 'coins', 'wooden_floor',]
 
 const MONKEY_IMAGES_INFO = [
-    { profile: true, base: false, options: [0,0] },
-    { profile: true, base: false, options: [0] },
-    { profile: true, base: false, options: [0] },
-    { profile: true, base: true, options: [3,3,3], activated: [true, true, true], },
-    { profile: true, base: true, options: [3,3] },
+    { profile: true, base: false, options: [0,0] }, // Monkey
+    { profile: true, base: false, options: [4,4,4] }, // Tack shooter
+    { profile: true, base: false, options: [0] }, // Pikachu
+    { profile: true, base: false, options: [1,3] }, // Mario
+    { profile: true, base: true, options: [3,3,3], activated: [true, true, true], }, // Red shooter
+    { profile: true, base: true, options: [3,3] }, // Rocket launcher
+    { profile: true, base: true, options: [0] }, // Sunflower
 ]
 
 // Image resources
@@ -16,16 +18,17 @@ var arrowImages = []
 var generalImages = []
 var animationsData = {
     explosion1: [],
+    sunflower: [],
 }
 
 // load images from a given folder function
-function loadImages(length, folderName, nameType, names=[]) {
+function loadImages(length, folderName, nameType, names=[], type='png') {
     var namesGiven = names.length > 0
     var images = []
     for (let i = 0; i < length; i++) {
         var image = new Image()
         var name = namesGiven ? nameType + names[i] : nameType + (i+1)
-        image.src = `../images/${folderName}/${name}.png`
+        image.src = `../images/${folderName}/${name}.${type}`
         images.push(image)
     }
     return images
@@ -36,6 +39,7 @@ arrowImages = loadImages(7, 'arrows', 'a')
 balloonImages = loadImages(12, 'balloons', 'b')
 mapImages = loadImages(1, 'maps', 'map')
 animationsData.explosion1 = loadImages(8, 'bombAnimation', 'frame')
+animationsData.sunflower = loadImages(59, 'monkeys/monkey7/gif', '', [], 'gif')
 
 // load monkey images
 for (let i = 0; i < MONKEY_IMAGES_INFO.length; i++) {

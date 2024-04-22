@@ -41,7 +41,7 @@ class Balloon {
 	hit(arrow) {
 		// Handle when balloon takes damage
 		let damage = arrow.strength
-		if (this.type == 8 & !arrow.armored_balloons) {
+		if (this.type == 8 & !arrow.armoredBalloons) {
 			damage = 0
 		}
 		let health = this.health - damage
@@ -50,6 +50,7 @@ class Balloon {
 		while (health <= 0) {
 			// Get children for this balloon type
 			let children = BALLOONS_INFO[this.type - 1].children;
+			arrow.monkeyParent.updateBalloonsPopped()
 
 			money += arrow.moneyMultiplier * BALLOONS_INFO[this.type - 1].money
 
@@ -125,7 +126,7 @@ class Balloon {
 		// get balloon info
 		// get the balloon object from the 'balloons' array using the provided 'index'
 		const balloonInfo = BALLOONS_INFO[this.type-1] // get the balloon information from 'BALLOONS_INFO' using the balloon type
-		var speed = balloonInfo.speed * speedFactor // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
+		var speed = balloonInfo.speed * (speedFactor)/GAME_SPEEDS[0] // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
 		var next = WAYPOINTS[this.next] // get the next waypoint from the 'WAYPOINTS' array using the 'next' property of the balloon object
 
 		// calculate balloon movement

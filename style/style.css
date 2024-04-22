@@ -2,37 +2,45 @@
     font-family: 'Nunito', sans-serif;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     text-align: center;
     background: rgb(126, 126, 126);
     color: rgb(23 60 102 / 84%);
-    background-image: url("/images/general/bg1.png");
+    background-image: url("/images/general/bg2.jpg");
+    background-size: cover;
     background-repeat: no-repeat;
-    background-size: 2025px;
+    /* background-size: 2025px; */
     background-position-x: center;
+    margin: 0;
+    color: white;
 }
 
-h1 {
-    letter-spacing: 1px;
-}
-
-canvas {
-    margin-top: 235px;
-    margin-bottom: 100px;
-    margin-right: 135px;
-    background: rgb(0, 0, 0);
-    /*background: rgb(208, 245, 252);*/
-    /* border-radius: 16px; */
-    /* width: 900px; */
-}
-
-.unselectable {
+* {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+h1 {
+    letter-spacing: 2px;
+    font-size: 40px;
+}
+
+canvas {
+    
+    background: rgb(0, 0, 0);
+    /*background: rgb(208, 245, 252);*/
+    /* border-radius: 16px; */
+    width: 100%;
+    min-width: 600px;
+    max-width: 1200px;
 }
 
 .gameplayButton {
@@ -45,7 +53,7 @@ canvas {
     padding: 5px 20px 5px 20px;
     font-weight: bold;
     transition-duration: 0.3s;
-    user-select: none;
+    cursor: pointer;
 }
 
 .gameplayButton:hover {
@@ -55,9 +63,17 @@ canvas {
     transition-duration: 0.3s;
 }
 
-
-
 span {
     color: white;
     font-size: x-large;
+}
+footer {
+    text-align: left;
+    padding: 0 30px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+footer * {
+    font-family: sans-serif;
 }

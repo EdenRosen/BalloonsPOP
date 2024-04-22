@@ -4,6 +4,7 @@ const MONK_COOLDOWN = 0
 const TRAIL_MARGIN = 50
 const MONKEY_RADIUS = 32
 const LIMIT_ACTIVATED = 2
+const MAX_PATHS = 2
 
 // Monkey data configuration
 
@@ -20,13 +21,13 @@ class Monkey {
         // Initialize monkey properties
         this.type = type
         this.setOrigin()
-        const data = MONKEY_DATA[this.type-1]
+        const data = this.getMonkeyData()
         var levels = []
         for (let i = 1; i < data.length; i++) {
             levels.push(0)
         }
-
         this.levels = levels
+        this.base = data[0].base ? data[0].base : null
 
         this.x = x
         this.y = y
@@ -41,18 +42,26 @@ class Monkey {
         this.bought = false
         this.moneyMultiplier = 1
         this.alternating_counter = 0
+        this.balloonsPopped = 0
     }
 
     setOrigin() {
-        const data = MONKEY_DATA[this.type-1]
+        const data = this.getMonkeyData()
         const origin = JSON.parse(JSON.stringify(data[0].origin))
         this.arrow = origin.arrow
         this.range = origin.range
         this.cooldown = origin.cooldown
         this.price = origin.price
         this.size = origin.size ? origin.size : 1
-        this.armored_balloons = origin.armored_balloons ? origin.armored_balloons : false
-        this.base_size_ratio = origin.base_size_ratio ? origin.base_size_ratio : 0.8
+        this.armoredBalloons = origin.armoredBalloons ? origin.armoredBalloons : false
+        this.baseSizeRatio = origin.baseSizeRatio ? origin.baseSizeRatio : 0.8
+        this.numShooters = origin.numShooters ? origin.numShooters : 1
+        this.factory = origin.factory ? origin.factory : false
+        this.rotatable = origin.rotatable != undefined ? origin.rotatable : true
+        this.animation = !origin.animation ? null : {
+            name: origin.animation,
+            src: null,
+        }
     }
 
     // ... (other functions)
@@ -71,6 +80,9 @@ class Monkey {
      * Makes the monkey shoot an arrow.
      */
     shoot() {
+        if (this.factory) {
+            return
+        }
         // let clone = pop.cloneNode(true)
         // clone.volume = 0.02;
         // clone.volume = 0
@@ -123,11 +135,16 @@ class Monkey {
                 size,
                 range,
                 bomb,
-                armored_balloons: me.armored_balloons
+                armoredBalloons: me.armoredBalloons,
+                monkeyParent: me
             })
             arrows.push(arrow)
 
         }
+    }
+
+    updateBalloonsPopped() {
+        this.balloonsPopped++
     }
 
     /**
@@ -173,18 +190,8 @@ class Monkey {
         return false
     }
 
-    canBuy(pathIndex) {
-        const monkeyDATA = MONKEY_DATA[this.type-1][pathIndex+1][this.levels[pathIndex]]
-        let canBuy = true
-        if (this.levels[pathIndex] >= LIMIT_ACTIVATED) {
-            for (let j = 0; j < this.levels.length; j++) {
-                if (this.levels[j] > LIMIT_ACTIVATED & j != pathIndex){
-                    canBuy = false
-                }
-            }
-        }
-        canBuy = canBuy && monkeyDATA.price < money
-        return canBuy
+    getMonkeyData() {
+        return MONKEY_DATA[this.type-1]
     }
 
     getActivated() {
@@ -200,10 +207,7 @@ class Monkey {
         // checks if there is a different path that has came to activated level
         for (let i = 0; i < this.levels.length; i++) {
             if (this.levels[i] == LIMIT_ACTIVATED & i != maxIndex) {
-                if (activated == null) {
-                    activated = []
-                }
-                activated.push(i)
+                activated = i
             }
         }
         // returns the index of the activated upgrade set
@@ -245,32 +249,30 @@ class Monkey {
         return false;
     }
 
-    findMonkeyPrintImageSkinOrBase() {
-        let returnSkin = [undefined, undefined]
-        let base_image = monkeyImages[this.type-1].base
-        if (base_image) {
-            returnSkin[0] = base_image
-        }
-        
+    
+
+    getSkinImage() {
         const skins = monkeyImages[this.type-1]
         var skin = skins.origin
-        var maxIndex = 0
-        for (let i = 0; i < this.levels.length; i++) {
-            if (this.levels[i] > this.levels[maxIndex]) {
-                maxIndex = i
-            }
-        }
+        const mainPath = this.getMainPath()
 
-        const level = this.levels[maxIndex]
+        const level = this.levels[mainPath]
         if (level >= 1) {
-            skin = skins.levels[maxIndex][level-1].normal
-            const activatedSkin = skins.levels[maxIndex][level-1].activated
+            skin = skins.levels[mainPath][level-1].normal
+            const activatedSkin = skins.levels[mainPath][level-1].activated
             if (this.getActivated() != null && activatedSkin) {
                 skin = activatedSkin
             }
         }
-        returnSkin[1] = skin
-        return returnSkin
+        return skin
+    }
+
+    getBaseImage() {
+        const base = monkeyImages[this.type-1].base
+        if (base) {
+            return base
+        }
+        return null
     }
 
     print() {
@@ -284,13 +286,46 @@ class Monkey {
         }
 
         // print monkey
-        let print_size = MONKEY_SIZE*this.size
-        let monkeyImage = this.findMonkeyPrintImageSkinOrBase()
-        if (monkeyImage[0] != undefined) {
-            let printSizeBase = print_size*this.base_size_ratio
-            c.img(this.x,this.y,printSizeBase,printSizeBase, monkeyImage[0])
+        const printSize = MONKEY_SIZE*this.size
+        const baseImage = this.getBaseImage()
+        label1: if (baseImage) {
+            const printSizeBase = printSize*this.baseSizeRatio
+            var xOffset = 0
+            var yOffset = 0
+            if (this.base) {
+                if (!this.base.relocating && this.relocating) {
+                    break label1
+                }
+                xOffset = this.base.xOffset
+                yOffset = this.base.yOffset
+            }
+            c.img(this.x + xOffset, this.y + yOffset, printSizeBase, printSizeBase, baseImage)
         }
-        c.img(this.x,this.y,print_size,print_size, monkeyImage[1], this.angle-90)
+        if (this.animation == null) {
+            c.img(this.x,this.y,printSize,printSize, this.getSkinImage(), this.angle-90)
+        } else {
+            if (!this.animation.src) {
+                const animation = new AnimationEffect({
+                    x: this.x,
+                    y: this.y,
+                    name: this.animation.name,
+                    size: printSize,
+                    speed: 0.5,
+                })
+                this.animation.src = animation
+            }
+            var animation = this.animation.src
+            animation.x = this.x
+            animation.y = this.y
+            animation.updateFrame(false)
+            animation.print()
+            
+        }
+        
+
+
+        
+        
         
     }
 
@@ -316,18 +351,134 @@ class Monkey {
     }
 
     moveMonkey() {
-        if (this.relocating) { // if monkey is relocating, quit the function
+        if (this.relocating || this.factory) { // if monkey is relocating, quit the function
             return
         }
+
+        if (this.factory) {
+            this.moneyFactory()
+        }
+
         let next = this.findFarthestballoon() // find the farthest balloon from the monkey using the 'findFarthestballoon' function and store it in the 'next' variable
         if (next == undefined) { // if no balloon was found
             return
-        } else if (time % this.cooldown == MONK_COOLDOWN) { // if the time is a multiple of the monkey's cooldown time
+        } else if (time % Math.round(this.cooldown/speedFactor) == MONK_COOLDOWN) { // if the time is a multiple of the monkey's cooldown time
+            if (this.numShooters > 1) {
+                const angleMultiplier = 360/this.numShooters
+                for (let num = 0; num < this.numShooters; num++) {
+                    this.angle = num*angleMultiplier;
+                    this.shoot() // make the monkey shoot using the 'shoot' function of the monkey object
+                }
+                this.angle = 90
+                return
+            }
             this.shoot() // make the monkey shoot using the 'shoot' function of the monkey object
         }
         var angle = Math.atan2(next.y - this.y, next.x - this.x) // calculate the angle between the monkey and the farthest balloon using 'Math.atan2'
         angle /= -RADIAN // convert the angle from radians to degrees by dividing by the constant 'RADIAN' and negate the result
-        this.angle = angle // update the position of the monkey using the 'updatePosition' function of the monkey object with the calculated angle
+      
+        if (this.rotatable) {
+            this.angle = angle
+        }
+    }
+
+    moneyFactory () {
+        // if (time % Math.round(this.cooldown/speedFactor) == MONK_COOLDOWN) {
+        //     let printSize = MONKEY_SIZE*this.size
+        //     let randomPositionX =  Math.random()*(this.rangeprintSize*this.baseSizeRatio) + printSize*this.baseSizeRatio+20-
+        //     let randomPositionY =  Math.random()*(this.range-printSize*this.baseSizeRatio) + printSize*this.baseSizeRatio+20
+        //     // make sure that it won't land out of bounds
+        //     randomPositionX = this.x+randomPositionX<=0 ? 100 : randomPositionX
+        //     randomPositionX = this.x-randomPositionX>=MW ? -100 : randomPositionX
+        //     randomPositionY = this.y+randomPositionY<=0 ? 100 : randomPositionY
+        //     randomPositionY = this.y-randomPositionY>=MH ? -100 : randomPositionY
+
+        //     coins.push(new Coin(randomPositionX,randomPositionY))
+        // }
+    }
+
+    getMainPath () {
+        let index = 0
+        for (let i = 0; i < this.levels.length; i++) {
+            if (this.levels[i] > this.levels[index]) {
+                index = i
+            }
+        }
+        return index
+    }
+
+    canBuy(pathIndex, moneyWise=true) {
+        const monkeyDATA = this.getMonkeyData()[pathIndex+1][this.levels[pathIndex]]
+        if (!monkeyDATA) {
+            return false
+        }
+        const filtered = this.levels.filter(l => l == 0)
+        if (filtered.length == this.levels.length - MAX_PATHS && this.levels[pathIndex] == 0) {
+            return false
+        }
+        if (this.levels[pathIndex] == LIMIT_ACTIVATED) {
+            for (let j = 0; j < this.levels.length; j++) {
+                if (this.levels[j] > LIMIT_ACTIVATED & j != pathIndex){
+                    return false
+                }
+            }
+        }
+        if (moneyWise) {
+            return monkeyDATA.price < money
+        }
+        return true
+        
+    }
+
+    getPrice(pathIndex) {
+        const monkeyDATA = this.getMonkeyData()[pathIndex+1][this.levels[pathIndex]]
+        return monkeyDATA.price
+    }
+
+    upgrade(index) {
+        const level = this.levels[index]
+        const data = this.getMonkeyData()
+        const monkeyData = data[index+1][level]
+        if (!monkeyData || !this.canBuy(index)) {
+            return
+        }
+
+        // upgrading logic
+
+        this.levels[index] += 1
+        money -= monkeyData.price
+        const activated = this.getActivated() // list of all activations
+
+        
+        this.setOrigin()
+        let mainPath = this.getMainPath()
+        for (let level = 0; level < this.levels[mainPath]; level++) {
+            this.upgradeByData(data[mainPath+1][level])
+        }
+        if (activated != null) {
+            this.upgradeByData(data[0].activate[activated])
+        }
+        
+    }
+
+    upgradeByData(monkeyData) {
+        for (const key in monkeyData) {
+            const improvement = monkeyData[key];
+            if (key == "arrow") {
+                for (const subKey in improvement) {
+                    this.arrow[subKey] = improvement[subKey]
+                }
+
+            } else {
+                if (key == "activate") {
+
+                } else if (key == "price") {
+                    this.price += monkeyData.price
+                } else {
+                    this[key] = improvement                         
+                }
+            }
+        }
     }
     
 }
