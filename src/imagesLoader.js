@@ -28,7 +28,7 @@ function loadImages(length, folderName, nameType, names=[], type='png') {
     for (let i = 0; i < length; i++) {
         var image = new Image()
         var name = namesGiven ? nameType + names[i] : nameType + (i+1)
-        image.src = `../images/${folderName}/${name}.${type}`
+        image.src = `images/${folderName}/${name}.${type}`
         images.push(image)
     }
     return images
@@ -49,9 +49,9 @@ for (let i = 0; i < MONKEY_IMAGES_INFO.length; i++) {
     var profile = new Image()
     var origin = new Image()
 
-    origin.src = `../images/monkeys/${folderName}/origin.png`
-    base.src = `../images/monkeys/${folderName}/base.png`
-    profile.src = `../images/monkeys/${folderName}/profile.png`
+    origin.src = `images/monkeys/${folderName}/origin.png`
+    base.src = `images/monkeys/${folderName}/base.png`
+    profile.src = `images/monkeys/${folderName}/profile.png`
     
     const imagesInfo = MONKEY_IMAGES_INFO[i]
     const monkeyInfo = MONKEY_DATA[i]
@@ -65,11 +65,11 @@ for (let i = 0; i < MONKEY_IMAGES_INFO.length; i++) {
             }
             if (imagesInfo.options[n] >= j+1) {
                 imageObject.normal = new Image()
-                imageObject.normal.src = `../images/monkeys/${folderName}/option${n+1}/level${j+1}.png`
+                imageObject.normal.src = `images/monkeys/${folderName}/option${n+1}/level${j+1}.png`
 
                 if (imagesInfo.activated != undefined && imagesInfo.activated[n]) {
                     let image2 = new Image()
-                    image2.src = `../images/monkeys/${folderName}/option${n+1}_a/level${j+1}.png`
+                    image2.src = `images/monkeys/${folderName}/option${n+1}_a/level${j+1}.png`
                     imageObject.activated = image2
                 }
             }

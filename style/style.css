@@ -10,7 +10,7 @@ body {
     text-align: center;
     background: rgb(126, 126, 126);
     color: rgb(23 60 102 / 84%);
-    background-image: url("/images/general/bg2.jpg");
+    background-image: url("../images/general/bg2.jpg");
     background-size: cover;
     background-repeat: no-repeat;
     /* background-size: 2025px; */
