@@ -7,6 +7,7 @@ const MOAB_SIZE_Y = 110;
 //POP_SIZE is the size factor of the popped balloons
 const POP_SIZE = 2.3;
 const LARGE_POP_SIZE = 5;
+var balloonIDcount = 1
 
 //BALLOONS_INFO contains information about balloons by level
 const BALLOONS_INFO = [ // money is the money the player gets every time the balloon is popped or becomes a different balloon
@@ -29,12 +30,15 @@ class Balloon {
 		// x, y and next are the coordinates of the balloon on the screen
 		this.x = x;
 		this.y = y;
+		this.id = balloonIDcount
+		balloonIDcount++
 		// next is the index of the waypoint the balloon is moving towards
 		this.next = next;
 		this.type = type;
 		this.health = BALLOONS_INFO[type - 1].health;
 		this.hidden = false
 		this.pop = false
+		this.freeze = {speedEffect: 1, cooldown: 100, lastFrozen: 0}
 	}
 
 	// hit function to handle when balloon takes damage
@@ -45,6 +49,12 @@ class Balloon {
 			damage = 0
 		}
 		let health = this.health - damage
+		if (arrow.freeze) {
+			this.freeze.speedEffect = arrow.freeze.speedEffect
+			this.freeze.cooldown = arrow.freeze.cooldown
+			this.freeze.lastFrozen = time
+			return
+		}
 
 		// Keep decrementing health until it becomes non-positive
 		while (health <= 0) {
@@ -124,9 +134,13 @@ class Balloon {
 
 	moveBalloon() {
 		// get balloon info
+		if ((time-this.freeze.lastFrozen) % Math.round(this.freeze.cooldown/speedFactor) == 0) {
+			this.freeze.speedEffect = 1
+			this.freeze.cooldown = 10000
+		}
 		// get the balloon object from the 'balloons' array using the provided 'index'
 		const balloonInfo = BALLOONS_INFO[this.type-1] // get the balloon information from 'BALLOONS_INFO' using the balloon type
-		var speed = balloonInfo.speed * (speedFactor)/GAME_SPEEDS[0] // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
+		var speed = this.freeze.speedEffect * balloonInfo.speed * (speedFactor)/GAME_SPEEDS[0] // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
 		var next = WAYPOINTS[this.next] // get the next waypoint from the 'WAYPOINTS' array using the 'next' property of the balloon object
 
 		// calculate balloon movement
@@ -166,7 +180,7 @@ class Balloon {
 			this.y,
 			width * size,
 			height * size,
-			generalImages[0]
+			generalImages['pop'],
 		)
 	}
 
@@ -240,8 +254,11 @@ class Balloon {
 				deg = target_deg + (origin_deg - target_deg) * this.turningFunc(per);
 			}
 		}
-
-		c.img(this.x, this.y, width, height, balloonImages[this.type - 1], deg);
+		let imageBalloon = balloonImages[this.type - 1]
+		if (this.freeze.speedEffect<1) {
+			imageBalloon = frozenBalloonImages[this.type - 1]
+		}
+		c.img(this.x, this.y, width, height, imageBalloon, deg);
 
 	}
 

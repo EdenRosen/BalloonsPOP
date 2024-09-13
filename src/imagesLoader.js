@@ -1,4 +1,4 @@
-const GENERAL_IMAGES_NAMES = ['pop', 'heart', 'coins', 'wooden_floor',]
+const GENERAL_IMAGES_NAMES = ['pop', 'heart', 'coins', 'wooden_floor', 'sun1', 'maps_bg']
 
 const MONKEY_IMAGES_INFO = [
     { profile: true, base: false, options: [0,0] }, // Monkey
@@ -8,37 +8,44 @@ const MONKEY_IMAGES_INFO = [
     { profile: true, base: true, options: [3,3,3], activated: [true, true, true], }, // Red shooter
     { profile: true, base: true, options: [3,3] }, // Rocket launcher
     { profile: true, base: true, options: [0] }, // Sunflower
+    { profile: true, base: false, options: [0] }, // Winter Watermelon
+    { profile: true, base: false, options: [0] }, // Submarine
 ]
 
 // Image resources
 var mapImages = []
 var balloonImages = []
+var frozenBalloonImages = []
 var monkeyImages = []
 var arrowImages = []
-var generalImages = []
-var animationsData = {
-    explosion1: [],
-    sunflower: [],
-}
+var generalImages = {}
+var animationsData = {}
 
 // load images from a given folder function
 function loadImages(length, folderName, nameType, names=[], type='png') {
     var namesGiven = names.length > 0
     var images = []
+    var objectImages = {}
     for (let i = 0; i < length; i++) {
         var image = new Image()
         var name = namesGiven ? nameType + names[i] : nameType + (i+1)
         image.src = `images/${folderName}/${name}.${type}`
-        images.push(image)
+        if (namesGiven) {
+            objectImages[name] = image
+        } else {
+            images.push(image)
+        }
     }
-    return images
+    return namesGiven ? objectImages : images
 }
 
 generalImages = loadImages(GENERAL_IMAGES_NAMES.length, 'general', '', GENERAL_IMAGES_NAMES)
-arrowImages = loadImages(7, 'arrows', 'a')
-balloonImages = loadImages(12, 'balloons', 'b')
-mapImages = loadImages(1, 'maps', 'map')
+arrowImages = loadImages(8, 'arrows', 'a')
+balloonImages = loadImages(12, 'balloons/origin', 'b')
+frozenBalloonImages = loadImages(11, 'balloons/frozen', 'b')
+mapImages = loadImages(4, 'maps', 'map')
 animationsData.explosion1 = loadImages(8, 'bombAnimation', 'frame')
+animationsData.freeze1 = loadImages(10, 'freezeAnimation', 'frame')
 animationsData.sunflower = loadImages(59, 'monkeys/monkey7/gif', '', [], 'gif')
 
 // load monkey images

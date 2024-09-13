@@ -129,7 +129,8 @@ class Canvas {
   }
 
   // Define a function named text with five parameters: content, x, y, size, and color.
-  text(content, x, y, size = 30, color = "black", bold = false, font = "Arial", isMeasureText = false, isStroke = "color") {
+  text(content, x, y, size = 30, color = "black", bold = false, font = "Arial",
+    isMeasureText = false, isStroke = "color", strokeWidth=2) {
     // Set the fill style of the context to the color parameter.
     this.ctx.fillStyle = color;
     
@@ -146,7 +147,7 @@ class Canvas {
     }
     this.ctx.fillText(content, x, y);
     if (isStroke != "color") {
-      this.ctx.lineWidth = 2;
+      this.ctx.lineWidth = strokeWidth;
       this.ctx.strokeStyle = isStroke;
       ctx.strokeText(content, x, y);
     }

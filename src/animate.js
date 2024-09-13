@@ -9,36 +9,49 @@ function animate() {
 	updateMonkeysPosition()
 	updateArrowsPosition()
 	updateAnimations()
+	updateCoins()
 
 	time++
-	roundTime++
-	
-	var roundEnded = true
-	if (roundTime >= 0) {
-		for (let cluster of roundClusters) {
-			const deploy = 
-				cluster.count > 0 && roundTime >= cluster.start &&
-				(roundTime - cluster.start) % cluster.rate == 0
-			if (deploy) {
-				cluster.count--
-				addBalloon(cluster.type)
-			}
-			if (cluster.count > 0) {
-				roundEnded = false
-			}
-
-		}
-	} else {
-		roundEnded = false
-	}
-
-	if (roundEnded && balloons.length == 0) {
-		roundTime = -TIME_BETWEEN_ROUND
-		currentRound++
-		setupRound(currentRound)
-	}
-
 	printFrame()
+	
+	if (!isBetweenRounds) {
+		roundTime++
+		if (roundTime < 100) {
+			const m_width = 700
+			const m_height = 200
+            c.rect(CW/2, CH/2, m_width, m_height, "rgba(0,0,0)")
+            c.text(`ROUND ${currentRound}`, CW/2, CH/2+45, 132, "yellow", false, 'Edu NSW ACT Foundation', true) 
+		}
+		
+
+		var roundEnded = true
+		if (roundTime >= 0) {
+			for (let cluster of roundClusters) {
+				const deploy = 
+					cluster.count > 0 && roundTime >= cluster.start &&
+					(roundTime - cluster.start) % cluster.rate == 0
+				if (deploy) {
+					cluster.count--
+					addBalloon(cluster.type)
+				}
+				if (cluster.count > 0) {
+					roundEnded = false
+				}
+			}
+		} else {
+			roundEnded = false
+		}
+
+		if (roundEnded && balloons.length == 0) {
+			roundTime = -TIME_BETWEEN_ROUND
+			currentRound++
+
+			isBetweenRounds = true
+
+			setupRound(currentRound)
+		}
+	}
+
 
 }
 
@@ -72,9 +85,9 @@ function printFrame() {
 	printBalloons()
 	printArrows()
 	printMonkeys()
+	printCoins()
 	printAnimations()
 	printMenu()
-	printCoins()
 	if (printMenuMonkeyVar) { // if 0 then false
 		printMenuMonkey()
 	}

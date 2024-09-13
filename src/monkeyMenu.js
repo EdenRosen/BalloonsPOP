@@ -26,7 +26,7 @@ const IMP_BOX_INFO = {
 function printMenuMonkey() {
     monkey = monkeys[printMenuMonkeyVar-1]
     // the menu background itself
-    c.img2((CW-TABLE_WIDTH)/2, CH - TABLE_HEIGHT/2, TABLE_HEIGHT, CW - TABLE_WIDTH, generalImages[3], 90)
+    c.img2((CW-TABLE_WIDTH)/2, CH - TABLE_HEIGHT/2, TABLE_HEIGHT, CW - TABLE_WIDTH, generalImages['wooden_floor'], 90)
     // the box for the monkey profile
 
     c.rect((CW*0.1)/2 + 50, CH - TABLE_HEIGHT/2, MONKEY_SIZE * 3, MONKEY_SIZE  * 3, "rgb(111, 97, 192)")
@@ -55,7 +55,7 @@ function printMenuMonkey() {
         } else {
             const activatedSkin = monkeyImages[monkey.type-1].levels[index][level].activated
             let image = monkeyImages[monkey.type-1].levels[index][level].normal
-            if (monkey.getActivated() != null && activatedSkin && index == monkey.getMainPath()) {
+            if (monkey.getActivated() != null && activatedSkin && index == monkey.mainPath) {
                 image = activatedSkin
             }
             c.img(IMP_BOX_INFO.x + (index)*(IMP_BOX_INFO.w+20),IMP_BOX_INFO.y, IMP_BOX_INFO.w-20, IMP_BOX_INFO.h-10, image)
@@ -72,7 +72,6 @@ function printMenuMonkey() {
         }
         if (possibleToBuy && !canBuyM) {
             coverFactor = 1 - money / monkey.getPrice(index)
-            console.log(coverFactor);
         }
         if (!canBuyM) {
             const height = (IMP_BOX_INFO.h-10+IMP_BOX_INFO.downOffset) * coverFactor
@@ -89,7 +88,7 @@ function printMenuMonkey() {
     c.img((CW*0.1)/2 + 50, CH - TABLE_HEIGHT/2, MONKEY_SIZE * 2.5, MONKEY_SIZE  * 2.5, table_image)
 }
 
-function handleMonkeyMenu(mouse) {
+function handleMonkeyMenu() {
     if (isInsideRectangle(mouse.x, mouse.y, RELOCATE_BOX_INFO.x ,RELOCATE_BOX_INFO.y, RELOCATE_BOX_INFO.w, RELOCATE_BOX_INFO.h,)) {
         console.log("gonna start relocation soon, or never relocate")
         if (NEVER_RELOCATE) {

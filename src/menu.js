@@ -1,6 +1,6 @@
 const TABLE_WIDTH = 220
 const TABLE_LINES = 2
-const DOWN_OFFSET = 20
+const DOWN_OFFSET = 40
 
 function printMenu() {
     const monkeysNumber = monkeyImages.length
@@ -8,6 +8,8 @@ function printMenu() {
     const BOX_SIZE = (TABLE_WIDTH-spacing*(TABLE_LINES+1))/TABLE_LINES
     const TABLE_X = MW + BOX_SIZE/2 + spacing
     const TABLE_Y = BOX_SIZE/2 + spacing
+
+
 
     c.rect(MW + TABLE_WIDTH/2, CH/2, TABLE_WIDTH, CH, "rgb(7, 65, 115)")
     var counter = 0;
@@ -26,8 +28,14 @@ function printMenu() {
             const boxY = TABLE_Y + (spacing + BOX_SIZE + DOWN_OFFSET)*i
             c.rect(boxX, boxY+DOWN_OFFSET/2, BOX_SIZE, BOX_SIZE+DOWN_OFFSET, "rgb(111, 97, 192)")
             c.img(boxX, boxY, BOX_SIZE, BOX_SIZE, tableImage)
-            c.text(`$${price}`, boxX-TABLE_WIDTH/4 + 1.7*spacing, boxY+TABLE_WIDTH/4 - 2*spacing + DOWN_OFFSET, 36, "white", true, "Cursive", false, 'black')
-            
+            let textSize = 36
+            let xOffset = 0
+            if (price >= 1000)  {
+                textSize = 30
+                xOffset = 3
+            }
+            // c.text(`$${price}`, boxX-TABLE_WIDTH/4 + 1.7*spacing - xOffset, boxY+TABLE_WIDTH/4 - 2*spacing + DOWN_OFFSET, textSize, "white", true, "Cursive", false, 'black')
+            c.text(`$${price}`, boxX-TABLE_WIDTH/4 + 1.7*spacing - xOffset + 15, boxY+TABLE_WIDTH/4 - 2*spacing + DOWN_OFFSET, 32, "White", true, 'Edu NSW ACT Foundation') 
 
             const canBuy = price < money
             if (!canBuy) {
@@ -45,21 +53,35 @@ function printMenu() {
 
 
     c.rect(MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100, "rgb(22, 121, 171)")
+
     let speedString = ""
-    for (let i = 0; i < speedFactor/GAME_SPEEDS[0]; i++) {
-        speedString += ">"
+    if (isBetweenRounds) {
+        speedString = "Start"
+    } else {
+        for (let i = 0; i < speedFactor/GAME_SPEEDS[0]; i++) {
+            speedString += ">"
+        }
     }
     c.text(speedString, MW + TABLE_WIDTH/2, CH-25, TABLE_WIDTH/3, "rgb(7, 65, 115)", true, "Cursive", isMeasureText=true)
    
     c.text("Round: "+currentRound, MW + TABLE_WIDTH/2, CH*0.9, 30, "White", true, "Cursive", isMeasureText=true)
 }
 
-function menu_click(mouse) { // x and y coordinates
+function menu_click() { // x and y coordinates
     if (!running) { // can buy only when game is running
         return
     }
     if (isInsideRectangle(mouse.x,mouse.y, MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100)) {
-        speedFactor = GAME_SPEEDS[(speedFactor/GAME_SPEEDS[0]) % GAME_SPEEDS.length]
+        if (isBetweenRounds) {
+            // new round starts
+            isBetweenRounds = false
+            console.log('round started');
+            
+            
+
+        } else {
+            speedFactor = GAME_SPEEDS[(speedFactor/GAME_SPEEDS[0]) % GAME_SPEEDS.length]
+        }
         return -1
     }
 

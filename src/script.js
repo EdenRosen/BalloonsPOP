@@ -17,34 +17,15 @@ const RADIAN = Math.PI/180
 // Waypoint and tunnel data
 const SHOW_WAY_LINES = false
 const WAY_LINE_WIDTH = 50
-const WAYPOINTS = [ // waypoints of the trail
-    {x: 0, y: 600},
-    {x: 300, y: 600},
-    {x: 300, y: 420},
-    {x: 540, y: 420},
-    {x: 540, y: 1000},
-    {x: 900, y: 1000},
-    {x: 900, y: 255},
-    {x: 300, y: 235},
-    {x: 300, y: 75},
-    {x: 1100, y: 75},
-    {x: 1100, y: 250},
-    {x: 1320, y: 250},
-    {x: 1320, y: 430},
-    {x: 1100, y: 430},
-    {x: 1090, y: 760},
-    {x: 300, y: 780},
-    {x: 300, y: 1100},
-]
-const TUNNELS = [
-    {x: 900, y: 758, w: 200, h: 330, under: [6]},
-    {x: 547, y: 760, w: 340, h: 200, under: [15]},
-]
+const MAP = MAPS_DATA[1]
+const WAYPOINTS = MAP.waypoints
+const TUNNELS = MAP.tunnels ? MAP.tunnels : []
+const PONDS = MAP.ponds ? MAP.ponds : []
 
 let pop = new Audio('../sounds/pop.mp3');
 // Gameplay settings
 const START_MONEY = 5800 // 800 is good
-const START_LIVES = 500
+const START_LIVES = 10
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
 const FRAMES_IN_SECOND = 30
@@ -63,18 +44,20 @@ var balloons = []
 var monkeys = []
 var arrows = []
 var animations = []
+var coins = []
 var time = 0
 var speedFactor = 1.8 // 1.8
+var mouse
 
 // Counter and money
 var relocateMonkey = 0
 var createMonkey = 0 // the kind of monkey from the menu, 1,2,3...
 var money = START_MONEY
-var coins = []
 
 // Rounds
 var currentRound = 1
 var roundTime = -50
+var isBetweenRounds = true
 var roundClusters = []
 
 
@@ -88,7 +71,7 @@ var roundClusters = []
 
 // monkeyImages = loadImages(6, 'arrows', 'a') ----------- fix
 
-setTimeout(updateOnce, 50)
+// setTimeout(updateOnce, 50)
 function updateOnce() {
     printFrame()
     printMenu()
@@ -114,6 +97,7 @@ function restart() {
     monkeys = []
     arrows = []
     animations = []
+    coins = []
     time = 0
 
     // Counter and money
@@ -130,6 +114,7 @@ function restart() {
 
     updateStartButton()
     printFrame()
+    c.img(100,100,50,50, generalImages['pop'])
 }
 
 function gameOver() {
@@ -164,11 +149,21 @@ function insideTunnel(p, index) {
     return false
 }
 
+//-------------------------------PONDS----------------------------------------\\
+
+
+
 //------------------------------------UPDATE ANIMATIONS---------------------------------------\\
 
 function updateAnimations() { // called every frame
     for (const animation of animations) {
         animation.updateFrame()
+    }
+}
+
+function updateCoins() {
+    for (const coin of coins) {
+        coin.update()
     }
 }
 
@@ -187,6 +182,7 @@ function updateBalloonsPosition() { // called every frame
 }
 
 function updateMonkeysPosition() { // called every frame
+	if (lives == 0) return
     for (const monkey of monkeys) {
         monkey.moveMonkey()
     }
@@ -195,13 +191,22 @@ function updateMonkeysPosition() { // called every frame
 //-------------------------------------PRINTING FUNCTIONS-------------------------------------------\\
 
 function printBackground() {
-    c.img(MW/2,MH/2,MW,MH, mapImages[0])
+    c.img(MW/2,MH/2,MW,MH, mapImages[MAP.id - 1])
     if (SHOW_WAY_LINES) {
         c.line(WAYPOINTS, "gray", WAY_LINE_WIDTH)
     }
-    
+    //printPonds()
 }
 
+function printPonds() {
+    for (let index = 0; index < PONDS.length; index++) {
+        const pondD = PONDS[index]
+        for (let i = 0; i < pondD.length; i++) {
+            const pond = pondD[i]
+            c.oval(pond.x, pond.y, pond.radius*2, pond.radius*2, "black", 0, 0.5)
+        }
+    }
+}
 
 function printTunnels() {
     for (const t of TUNNELS) {
@@ -261,7 +266,7 @@ function printArrows() {
 }
 
 function printCoins() {
-    for (let coin = 0; coin < coins.length; coin++) {
+    for (const coin of coins) {
         coin.print()
     }
 }
@@ -274,22 +279,23 @@ function printAnimations() {
 
 function printMoneyHearts() {
     var xStart = 70
-    var offset = 200
-    // lives
-    var livesP = lives < 0 ? 0 : lives
-    c.img(xStart, 50, 60, 60, generalImages[1])
-    c.text(livesP, 100, 65, 45, "white", true, "Sans-serif", false, isStroke='black')
-
+    var offset = -5
+    const yPos = 150
     // money
-    c.img(xStart + offset, 50, 60, 60, generalImages[2])
-    c.text("$" + money, 110 + offset, 65, 45, "white", true, "Sans-serif", false, isStroke='black')
+    var livesP = lives < 0 ? 0 : lives
+    c.img(xStart-10, 70, 60, 60, generalImages['coins'])
+    c.text(money, 105, 90, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+
+    // lives
+    c.img(xStart + offset, yPos-15, 60, 60, generalImages['heart'])
+    c.text(livesP, 110 + offset, yPos, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
 }
 
 //-----------------------------MONKEY'S RELOCATION AND PURCHASE--------------------------------\\
 
 // return true when does something like buy a monkey 
 // returns false when fails and doesn't change anything
-function handleMonkeyRelocation(event, mouse) {
+function handleMonkeyRelocation(event) {
     if (!relocateMonkey) { // if was clicked and not bought
         let arr = []
         for (let i = 0; i < monkeys.length; i++) {
@@ -367,12 +373,15 @@ function handleMonkeyRelocation(event, mouse) {
 
 //-----------------------------CANVAS EVENTS--------------------------------\\
 
+canvas.addEventListener('contextmenu', e => {
+    e.preventDefault()
+})
+
 addEventListener('click', (event) => { // add an event listener to the click event
     var click = canvasClick(event)
-    let mouse = getMousePos(event)
     if (click != 'outside_canvas') { // canvas is clicked
         if (click == 'side_menu') { // menu is clicked
-            let index = menu_click(mouse)
+            let index = menu_click()
             if (index < 0) {
                 // nothing, changed the speed
             } else if (index != 0) {
@@ -381,30 +390,31 @@ addEventListener('click', (event) => { // add an event listener to the click eve
                 relocateMonkey = 0
             } 
         } else if (click == 'monkey_menu') { // when player decided to click a monkey, opens menu
-            handleMonkeyMenu(mouse)
+            handleMonkeyMenu()
         } else if (click == 'map') { // map is clicked
-            relocation = handleMonkeyRelocation(event, mouse)
+            relocation = handleMonkeyRelocation(event)
         }
     }
 })
 
 addEventListener('mousemove', (event) => {
-    var click = canvasClick(event)
-    let mouse = getMousePos(event)
+    var click = canvasClick(event) // where on the screen
     if (click != 'outside_canvas') {        
-        if (click == 'map' & createMonkey != 0) { // create a new instance
-            if (printMenuMonkeyVar != 0) {
-                m = monkeys[printMenuMonkeyVar-1]
-                m.relocating = false
-                m.menuOpen = false
-                printMenuMonkeyVar = 0
+        if (click == 'map') { // create a new instance
+            if (createMonkey != 0) {
+                if (printMenuMonkeyVar != 0) {
+                    m = monkeys[printMenuMonkeyVar-1]
+                    m.relocating = false
+                    m.menuOpen = false
+                    printMenuMonkeyVar = 0
+                }
+                index = createMonkey
+                new_monkey = new Monkey({ x: mouse.x, y: mouse.y, type: index })
+                monkeys.push(new_monkey)
+                createMonkey = 0
+                relocateMonkey = monkeys.length
+                new_monkey.relocating = true 
             }
-            index = createMonkey
-            new_monkey = new Monkey({ x: mouse.x, y: mouse.y, type: index })
-            monkeys.push(new_monkey)
-            createMonkey = 0
-            relocateMonkey = monkeys.length
-            new_monkey.relocating = true
         } else if (click == 'side_menu' & !createMonkey & relocateMonkey != 0) { // when player decided  not to buy the monkey
             if (!monkeys[relocateMonkey-1].bought) { // if it was not bought yet
                 monkeys.pop()
@@ -428,7 +438,7 @@ addEventListener('mousemove', (event) => {
 })
 
 function canvasClick(event) { // return what area of the page was clicked
-    let mouse = getMousePos(event)
+    mouse = getMousePos(event)
     if (mouse.x > 0 & mouse.x < CW & mouse.y > 0 & mouse.y < CH) {
         if (mouse.x < MW) {
             if (mouse.y > CH - TABLE_HEIGHT & printMenuMonkeyVar != 0) {

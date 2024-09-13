@@ -1,6 +1,5 @@
 // Monkey properties
 const MONKEY_SIZE = 80
-const MONK_COOLDOWN = 0
 const TRAIL_MARGIN = 50
 const MONKEY_RADIUS = 32
 const LIMIT_ACTIVATED = 2
@@ -41,8 +40,10 @@ class Monkey {
         this.menuOpen = false
         this.bought = false
         this.moneyMultiplier = 1
-        this.alternating_counter = 0
+        this.alternating_counter = 0 // if alternating the shoots from different offsets
         this.balloonsPopped = 0
+        this.creationTime = time
+        this.mainPath = 0
     }
 
     setOrigin() {
@@ -58,6 +59,8 @@ class Monkey {
         this.numShooters = origin.numShooters ? origin.numShooters : 1
         this.factory = origin.factory ? origin.factory : false
         this.rotatable = origin.rotatable != undefined ? origin.rotatable : true
+        this.target = origin.target ? origin.target : false
+        this.water = origin.water ? origin.water : false
         this.animation = !origin.animation ? null : {
             name: origin.animation,
             src: null,
@@ -74,6 +77,7 @@ class Monkey {
     updateLocation(x, y) {
         this.x = x
         this.y = y
+        this.creationTime = time
     }
 
     /**
@@ -81,6 +85,7 @@ class Monkey {
      */
     shoot() {
         if (this.factory) {
+            console.log("I shouldn't remove this because it is never called?")
             return
         }
         // let clone = pop.cloneNode(true)
@@ -131,17 +136,59 @@ class Monkey {
                 speed: speed,
                 angle: angle,
                 moneyMultiplier: me.moneyMultiplier,
+                armoredBalloons: me.armoredBalloons,
                 health,
                 size,
                 range,
                 bomb,
-                armoredBalloons: me.armoredBalloons,
-                monkeyParent: me
+                freeze: arr.freeze,
+                monkeyParent: me,
             })
             arrows.push(arrow)
 
         }
     }
+
+    shootTarget(target) { // shoots to hit target
+        const arr = this.arrow
+        var speed = arr.speed ? arr.speed : 1
+        speed *= ARROW_DEFAULT_SPEED
+        const size = arr.size ? arr.size : 1
+        const health = arr.health ? arr.health : 1
+        // const offsets = arr.offset ? arr.offset : [[0, 0]]
+        // const range = arr.range ? arr.range : 3000
+        // const a2 = this.angle * -RADIAN
+        const bomb = arr.bomb ? arr.bomb : null
+
+        var constTarget = null
+        if (arr.constTarget) {
+            constTarget = {
+                x: target.x,
+                y: target.y,
+            }
+        }
+        let arrow = new Arrow({
+            x: this.x,
+            y: this.y,
+            type: arr.type,
+            strength: arr.strength,
+            speed,
+            target: target.id,
+            bomb,
+            size,
+            health,
+            armoredBalloons: this.armoredBalloons,
+            freeze: arr.freeze,
+            angle: this.angle,
+            monkeyParent: this,
+            guided: arr.guided,
+            constTarget: constTarget,
+            hitControl: arr.hitControl,
+        })
+        arrows.push(arrow)
+    }
+
+    
 
     updateBalloonsPopped() {
         this.balloonsPopped++
@@ -233,8 +280,23 @@ class Monkey {
 
     // check if monkey is at an illegal location to be placed
     legalLocation() {
-        // if not on trail and not on a different monkey than legal
-        return (!this.onTrail() & !this.onMonkey())
+        // return if legal
+        return (!this.onTrail() && !this.onMonkey() && this.water == this.onPond())
+    }
+
+    onPond() {
+        let isInWater = false
+        for (let index = 0; index < PONDS.length; index++) {
+            const pondD = PONDS[index]
+            for (let i = 0; i < pondD.length; i++) {
+                const pond = pondD[i]
+                if (checkCollision(pond, this, pond["radius"])) {
+                    console.log("in water rn!")
+                    isInWater = true
+                }
+            }
+        }
+        return isInWater
     }
 
     onMonkey() {
@@ -254,7 +316,7 @@ class Monkey {
     getSkinImage() {
         const skins = monkeyImages[this.type-1]
         var skin = skins.origin
-        const mainPath = this.getMainPath()
+        const mainPath = this.mainPath
 
         const level = this.levels[mainPath]
         if (level >= 1) {
@@ -329,7 +391,7 @@ class Monkey {
         
     }
 
-    findFarthestballoon() { // function to find the farthest balloon from the monkey
+    findFarthestBalloon() { // function to find the farthest balloon from the monkey
         let farthest; // variable to store the farthest balloon found so far
         for (const balloon of balloons) {
             if (balloon.hidden) {
@@ -347,22 +409,22 @@ class Monkey {
                 }
             }
         }
-        return farthest; // return the farthest balloon found
+        return farthest // return the farthest balloon found
     }
 
     moveMonkey() {
-        if (this.relocating || this.factory) { // if monkey is relocating, quit the function
+        if (this.relocating) { // if monkey is relocating, quit the function
             return
         }
-
         if (this.factory) {
             this.moneyFactory()
+            return
         }
 
-        let next = this.findFarthestballoon() // find the farthest balloon from the monkey using the 'findFarthestballoon' function and store it in the 'next' variable
-        if (next == undefined) { // if no balloon was found
+        let target = this.findFarthestBalloon() // find the farthest balloon from the monkey using the 'findFarthestBalloon' function and store it in the 'target' variable
+        if (target == undefined) { // if no balloon was found
             return
-        } else if (time % Math.round(this.cooldown/speedFactor) == MONK_COOLDOWN) { // if the time is a multiple of the monkey's cooldown time
+        } else if ((time-this.creationTime) % Math.round(this.cooldown/speedFactor) == 0) { // if the time is a multiple of the monkey's cooldown time
             if (this.numShooters > 1) {
                 const angleMultiplier = 360/this.numShooters
                 for (let num = 0; num < this.numShooters; num++) {
@@ -370,41 +432,58 @@ class Monkey {
                     this.shoot() // make the monkey shoot using the 'shoot' function of the monkey object
                 }
                 this.angle = 90
-                return
+            } else if (this.target) {
+                this.shootTarget(target)
+            } else {
+                this.shoot() // make the monkey shoot using the 'shoot' function of the monkey object
             }
-            this.shoot() // make the monkey shoot using the 'shoot' function of the monkey object
         }
-        var angle = Math.atan2(next.y - this.y, next.x - this.x) // calculate the angle between the monkey and the farthest balloon using 'Math.atan2'
-        angle /= -RADIAN // convert the angle from radians to degrees by dividing by the constant 'RADIAN' and negate the result
-      
+            
         if (this.rotatable) {
+            var angle = Math.atan2(target.y - this.y, target.x - this.x) // calculate the angle between the monkey and the farthest balloon using 'Math.atan2'
+            angle /= -RADIAN // convert the angle from radians to degrees by dividing by the constant 'RADIAN' and negate the result
+      
             this.angle = angle
         }
     }
 
     moneyFactory () {
-        // if (time % Math.round(this.cooldown/speedFactor) == MONK_COOLDOWN) {
-        //     let printSize = MONKEY_SIZE*this.size
-        //     let randomPositionX =  Math.random()*(this.rangeprintSize*this.baseSizeRatio) + printSize*this.baseSizeRatio+20-
-        //     let randomPositionY =  Math.random()*(this.range-printSize*this.baseSizeRatio) + printSize*this.baseSizeRatio+20
-        //     // make sure that it won't land out of bounds
-        //     randomPositionX = this.x+randomPositionX<=0 ? 100 : randomPositionX
-        //     randomPositionX = this.x-randomPositionX>=MW ? -100 : randomPositionX
-        //     randomPositionY = this.y+randomPositionY<=0 ? 100 : randomPositionY
-        //     randomPositionY = this.y-randomPositionY>=MH ? -100 : randomPositionY
-
-        //     coins.push(new Coin(randomPositionX,randomPositionY))
-        // }
+        // if money just moved on the map, then it can't generate money for half the cooldown
+        if ((time-this.creationTime) > this.cooldown/2 && (time-this.creationTime) % Math.round(this.cooldown/speedFactor) == 0) {
+            const printSize = MONKEY_SIZE*this.size
+            const minRadius = printSize
+            // const minRadius = this.range/2
+            const randomAngle = Math.PI*2*Math.random()
+            const randomRadius = minRadius + (this.range-minRadius)*Math.random()
+            var sunPos = {
+                x: this.x + randomRadius * Math.sin(randomAngle),
+                y: this.y + randomRadius * Math.cos(randomAngle),
+            }
+            // make sure that it won't land out of bounds
+            sunPos.x = sunPos.x > MW ? MW : sunPos.x
+            sunPos.x = sunPos.x < 0 ? 0 : sunPos.x
+            sunPos.y = sunPos.y > MH ? MH : sunPos.y
+            sunPos.y = sunPos.y <= 0 ? 0 : sunPos.y
+            
+            coins.push(new Coin({
+                x: this.x,
+                y: this.y,
+                target: {
+                    x: sunPos.x,
+                    y: sunPos.y,
+                },
+                value: this.factory.money,
+                lifeTime: this.factory.lifeTime,
+            }))
+        }        
     }
 
-    getMainPath () {
-        let index = 0
+    setMainPath () {
         for (let i = 0; i < this.levels.length; i++) {
-            if (this.levels[i] > this.levels[index]) {
-                index = i
+            if (this.levels[i] > this.levels[this.mainPath]) {
+                this.mainPath = i
             }
         }
-        return index
     }
 
     canBuy(pathIndex, moneyWise=true) {
@@ -446,14 +525,14 @@ class Monkey {
         // upgrading logic
 
         this.levels[index] += 1
+        this.setMainPath()
         money -= monkeyData.price
         const activated = this.getActivated() // list of all activations
 
         
         this.setOrigin()
-        let mainPath = this.getMainPath()
-        for (let level = 0; level < this.levels[mainPath]; level++) {
-            this.upgradeByData(data[mainPath+1][level])
+        for (let level = 0; level < this.levels[this.mainPath]; level++) {
+            this.upgradeByData(data[this.mainPath+1][level])
         }
         if (activated != null) {
             this.upgradeByData(data[0].activate[activated])
@@ -480,5 +559,4 @@ class Monkey {
             }
         }
     }
-    
 }

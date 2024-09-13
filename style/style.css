@@ -30,7 +30,8 @@ body {
 
 h1 {
     letter-spacing: 2px;
-    font-size: 40px;
+    font-size: 60px;
+    margin: 15px 0;
 }
 
 canvas {
@@ -40,7 +41,7 @@ canvas {
     /* border-radius: 16px; */
     width: 100%;
     min-width: 600px;
-    max-width: 1200px;
+    max-width: 1400px;
 }
 
 .gameplayButton {
