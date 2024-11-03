@@ -50,40 +50,59 @@ function printMenu() {
             }
         }
     }
-
-
+    var roundTextHeight = CH*0.9
+    if (isRush) {
+        roundTextHeight = CH*0.8
+        c.rect(MW + TABLE_WIDTH/2, CH-150, TABLE_WIDTH, 100, "rgb(122, 121, 171)")
+        c.text("RUSH", MW + TABLE_WIDTH/2, CH-130, 50, "rgb(155, 1, 115)", true, "Cursive", isMeasureText=true)
+    }
+    
+    // speed button
     c.rect(MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100, "rgb(22, 121, 171)")
 
     let speedString = ""
     if (isBetweenRounds) {
         speedString = "Start"
     } else {
-        for (let i = 0; i < speedFactor/GAME_SPEEDS[0]; i++) {
-            speedString += ">"
-        }
+        const index = (GAME_SPEEDS.indexOf(speedFactor))%2
+        if (index == 0) speedString = '>'
+        if (index == 1) speedString = '>>'
     }
-    c.text(speedString, MW + TABLE_WIDTH/2, CH-25, TABLE_WIDTH/3, "rgb(7, 65, 115)", true, "Cursive", isMeasureText=true)
-   
-    c.text("Round: "+currentRound, MW + TABLE_WIDTH/2, CH*0.9, 30, "White", true, "Cursive", isMeasureText=true)
+    c.text("Round: "+currentRound, MW + TABLE_WIDTH/2, roundTextHeight, 30, "White", true, "Cursive", isMeasureText=true)
+
+    c.text(speedString, MW + TABLE_WIDTH/2, CH-30, 55, "rgb(7, 65, 115)", true, "Cursive", isMeasureText=true)
+    
 }
 
 function menu_click() { // x and y coordinates
     if (!running) { // can buy only when game is running
         return
     }
-    if (isInsideRectangle(mouse.x,mouse.y, MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100)) {
+    if (isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100)) {
         if (isBetweenRounds) {
             // new round starts
             isBetweenRounds = false
-            console.log('round started');
-            
-            
-
+			times.push([new Date(), 0, speedFactor])
         } else {
-            speedFactor = GAME_SPEEDS[(speedFactor/GAME_SPEEDS[0]) % GAME_SPEEDS.length]
+            const index = (GAME_SPEEDS.indexOf(speedFactor)+1)%2
+            speedFactor = GAME_SPEEDS[index]
+
+            const date = new Date()
+            times[times.length-1][1]=date
+            times.push([date, 0, speedFactor])
         }
         return -1
+    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-150, TABLE_WIDTH, 100)) {
+        const date = new Date()
+        currentRound += 1
+        roundTime = -1
+        if (!isBetweenRounds) {// in middle of a round
+            times[times.length-1][1]=date
+        }
+        isBetweenRounds = false
+        times.push([date, 0, speedFactor])
     }
+
 
     const monkeysNumber = monkeyImages.length
     let sizeX = TABLE_WIDTH / TABLE_LINES

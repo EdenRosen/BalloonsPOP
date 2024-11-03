@@ -199,10 +199,10 @@ class Monkey {
      * @returns {boolean} True if the monkey is close to the trail, otherwise false.
      */
     onTrail() {
-        // Loop through every two close waypoints on the trail
-        for (let i = 0; i < WAYPOINTS.length-1; i++) {
-            let p1 = WAYPOINTS[i]  // First waypoint
-            let p2 = WAYPOINTS[i+1]  // Second waypoint
+        // Loop through every two close map.waypoints on the trail
+        for (let i = 0; i < map.waypoints.length-1; i++) {
+            let p1 = map.waypoints[i]  // First waypoint
+            let p2 = map.waypoints[i+1]  // Second waypoint
             let p3 = {x: this.x, y: this.y}  // Current location of the monkey
 
             // Get the distance from the line to the monkey's location
@@ -269,8 +269,8 @@ class Monkey {
     }
 
     monkeyOnTunnel(index, p3) {
-        for (let i = 0; i < TUNNELS.length; i++) {
-            let t = TUNNELS[i]
+        for (let i = 0; i < map.tunnels.length; i++) {
+            let t = map.tunnels[i]
             if (t.under.includes(index) & insideTunnel(p3, i)) {
                 return true
             }
@@ -286,8 +286,8 @@ class Monkey {
 
     onPond() {
         let isInWater = false
-        for (let index = 0; index < PONDS.length; index++) {
-            const pondD = PONDS[index]
+        for (let index = 0; index < map.ponds.length; index++) {
+            const pondD = map.ponds[index]
             for (let i = 0; i < pondD.length; i++) {
                 const pond = pondD[i]
                 if (checkCollision(pond, this, pond["radius"])) {

@@ -14,22 +14,29 @@ function animate() {
 	time++
 	printFrame()
 	
+	if (AUTO_START && currentRound > 1) {
+		isBetweenRounds = false
+	}
 	if (!isBetweenRounds) {
+		
 		roundTime++
-		if (roundTime < 100) {
-			const m_width = 700
-			const m_height = 200
-            c.rect(CW/2, CH/2, m_width, m_height, "rgba(0,0,0)")
-            c.text(`ROUND ${currentRound}`, CW/2, CH/2+45, 132, "yellow", false, 'Edu NSW ACT Foundation', true) 
-		}
+		// if (roundTime < 100) {
+		// 	const m_width = 700
+		// 	const m_height = 200
+        //     c.rect(CW/2, CH/2, m_width, m_height, "rgba(0,0,0)")
+        //     c.text(`ROUND ${currentRound}`, CW/2, CH/2+45, 132, "yellow", false, 'Edu NSW ACT Foundation', true) 
+		// }
 		
 
 		var roundEnded = true
+		if (roundTime == 0) {
+			setupRound(currentRound)
+		}
 		if (roundTime >= 0) {
 			for (let cluster of roundClusters) {
 				const deploy = 
 					cluster.count > 0 && roundTime >= cluster.start &&
-					(roundTime - cluster.start) % cluster.rate == 0
+					(roundTime - cluster.start) % (cluster.rate | 1) == 0
 				if (deploy) {
 					cluster.count--
 					addBalloon(cluster.type)
@@ -44,20 +51,14 @@ function animate() {
 
 		if (roundEnded && balloons.length == 0) {
 			roundTime = -TIME_BETWEEN_ROUND
+			console.log(times)
+			times[times.length-1][1] = new Date()
 			currentRound++
 
-			isBetweenRounds = true
-
-			setupRound(currentRound)
+			isBetweenRounds = false
 		}
 	}
-
-
 }
-
-setTimeout(() => {
-	setupRound(currentRound)
-}, 100)
 
 function setupRound(round) {
 	const roundData = ROUNDS_DATA[round-1]
@@ -74,7 +75,7 @@ function setupRound(round) {
 			count: cluster.count,
 		}
 		roundClusters.push(newCluster)
-	}	
+	}
 }
 
 function printFrame() {

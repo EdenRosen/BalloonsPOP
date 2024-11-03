@@ -1,4 +1,4 @@
-const GENERAL_IMAGES_NAMES = ['pop', 'heart', 'coins', 'wooden_floor', 'sun1', 'maps_bg']
+const GENERAL_IMAGES_NAMES = ['maps_bg', 'pop', 'heart', 'coins', 'wooden_floor', 'sun1', 'difficulties', 'sandwatch']
 
 const MONKEY_IMAGES_INFO = [
     { profile: true, base: false, options: [0,0] }, // Monkey
@@ -39,11 +39,11 @@ function loadImages(length, folderName, nameType, names=[], type='png') {
     return namesGiven ? objectImages : images
 }
 
+mapImages = loadImages(4, 'maps', 'map')
 generalImages = loadImages(GENERAL_IMAGES_NAMES.length, 'general', '', GENERAL_IMAGES_NAMES)
 arrowImages = loadImages(8, 'arrows', 'a')
 balloonImages = loadImages(12, 'balloons/origin', 'b')
 frozenBalloonImages = loadImages(11, 'balloons/frozen', 'b')
-mapImages = loadImages(4, 'maps', 'map')
 animationsData.explosion1 = loadImages(8, 'bombAnimation', 'frame')
 animationsData.freeze1 = loadImages(10, 'freezeAnimation', 'frame')
 animationsData.sunflower = loadImages(59, 'monkeys/monkey7/gif', '', [], 'gif')

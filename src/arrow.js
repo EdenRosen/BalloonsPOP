@@ -65,8 +65,8 @@ class Arrow {
                 this.angle += angleTurn
                 // this.angle = desiredAngle
 
-                var dx = this.speed * (speedFactor)/GAME_SPEEDS[0] * Math.cos(-(this.angle) * Math.PI / 180)
-                var dy = this.speed * (speedFactor)/GAME_SPEEDS[0] * Math.sin(-this.angle * Math.PI / 180)
+                var dx = this.speed * speedFactor * Math.cos(-(this.angle) * Math.PI / 180)
+                var dy = this.speed * speedFactor * Math.sin(-this.angle * Math.PI / 180)
                 var dr = calcMag(0, 0, dx, dy)
                 this.range -= dr
                 this.x += dx
@@ -78,8 +78,8 @@ class Arrow {
             }
             this.target = 0
         } else if (!this.constTarget && !this.target) { // regular shooting
-            var dx = this.speed * (speedFactor)/GAME_SPEEDS[0] * Math.cos(-(this.angle) * Math.PI / 180)
-            var dy = this.speed * (speedFactor)/GAME_SPEEDS[0] * Math.sin(-this.angle * Math.PI / 180)
+            var dx = this.speed * speedFactor * Math.cos(-(this.angle) * Math.PI / 180)
+            var dy = this.speed * speedFactor * Math.sin(-this.angle * Math.PI / 180)
             var dr = calcMag(0, 0, dx, dy)
             this.range -= dr
             this.x += dx
@@ -172,7 +172,7 @@ class Arrow {
             y: this.y,
             name: this.bomb.animation,
             size,
-            speed: this.bomb.speed * (speedFactor)/GAME_SPEEDS[0],
+            speed: this.bomb.speed * speedFactor * 0.4,
         })
         animations.push(animation)
     }

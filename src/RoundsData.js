@@ -6,10 +6,10 @@
 // black balloon 6
 // white balloon 7
 // lead balloon 8
-// zebra balloon
-// rainbow balloon
-// ceramic balloon
-// blue MOAB
+// zebra balloon 9
+// rainbow balloon 10
+// ceramic balloon 11
+// blue MOAB 12
 
 const ROUNDS_DATA = [
     [ // lvl 1
@@ -520,6 +520,567 @@ const ROUNDS_DATA = [
             start: 0,
             end: 5,
             count: 9,
+        },
+    ],
+    // Level 31
+    [
+        {
+            type: 10,
+            start: 0,
+            end: 5,
+            count: 15,
+        },
+        {
+            type: 10,
+            start: 6,
+            end: 10,
+            count: 20,
+        },
+    ],
+    // Level 32
+    [
+        {
+            type: 11, // Ceramic balloons introduced
+            start: 0,
+            end: 10,
+            count: 5,
+        },
+        {
+            type: 10,
+            start: 5,
+            end: 15,
+            count: 25,
+        },
+    ],
+    // Level 33
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 10,
+            count: 10,
+        },
+        {
+            type: 10,
+            start: 5,
+            end: 15,
+            count: 30,
+        },
+    ],
+    // Level 34
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 12,
+            count: 15,
+        },
+        {
+            type: 10,
+            start: 6,
+            end: 18,
+            count: 35,
+        },
+    ],
+    // Level 35
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 20,
+        },
+        {
+            type: 10,
+            start: 8,
+            end: 20,
+            count: 40,
+        },
+    ],
+    // Level 36
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 25,
+        },
+        {
+            type: 10,
+            start: 10,
+            end: 25,
+            count: 45,
+        },
+    ],
+    // Level 37
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 30,
+        },
+        {
+            type: 10,
+            start: 12,
+            end: 27,
+            count: 50,
+        },
+    ],
+    // Level 38
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 35,
+        },
+        {
+            type: 10,
+            start: 14,
+            end: 29,
+            count: 55,
+        },
+    ],
+    // Level 39
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 40,
+        },
+        {
+            type: 10,
+            start: 16,
+            end: 31,
+            count: 60,
+        },
+    ],
+    // Level 40
+    [
+        {
+            type: 12, // Blue MOAB introduced
+            start: 0,
+            end: 1,
+            count: 1,
+        },
+    ],
+    // Level 41
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 25,
+        },
+        {
+            type: 12,
+            start: 18,
+            end: 18,
+            count: 1,
+        },
+    ],
+    // Level 42
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 30,
+        },
+        {
+            type: 12,
+            start: 20,
+            end: 20,
+            count: 1,
+        },
+    ],
+    // Level 43
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 35,
+        },
+        {
+            type: 12,
+            start: 22,
+            end: 22,
+            count: 2,
+        },
+    ],
+    // Level 44
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 40,
+        },
+        {
+            type: 12,
+            start: 24,
+            end: 24,
+            count: 2,
+        },
+    ],
+    // Level 45
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 45,
+        },
+        {
+            type: 12,
+            start: 26,
+            end: 26,
+            count: 3,
+        },
+    ],
+    // Level 46
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 50,
+        },
+        {
+            type: 12,
+            start: 28,
+            end: 28,
+            count: 3,
+        },
+    ],
+    // Level 47
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 55,
+        },
+        {
+            type: 12,
+            start: 30,
+            end: 30,
+            count: 4,
+        },
+    ],
+    // Level 48
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 60,
+        },
+        {
+            type: 12,
+            start: 32,
+            end: 32,
+            count: 4,
+        },
+    ],
+    // Level 49
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 15,
+            count: 65,
+        },
+        {
+            type: 12,
+            start: 34,
+            end: 34,
+            count: 5,
+        },
+    ],
+    // Level 50
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 30,
+            count: 10,
+        },
+    ],
+    // Level 51
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 20,
+            count: 70,
+        },
+        {
+            type: 12,
+            start: 22,
+            end: 22,
+            count: 5,
+        },
+    ],
+    // Level 52
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 15,
+            count: 6,
+        },
+        {
+            type: 12,
+            start: 16,
+            end: 30,
+            count: 6,
+        },
+    ],
+    // Level 53
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 12,
+        },
+    ],
+    // Level 54
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 25,
+            count: 80,
+        },
+        {
+            type: 12,
+            start: 27,
+            end: 27,
+            count: 6,
+        },
+    ],
+    // Level 55
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 15,
+        },
+    ],
+    // Level 56
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 18,
+        },
+    ],
+    // Level 57
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 21,
+        },
+    ],
+    // Level 58
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 24,
+        },
+    ],
+    // Level 59
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 27,
+        },
+    ],
+    // Level 60
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 30,
+        },
+    ],
+    // Level 61
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 35,
+        },
+    ],
+    // Level 62
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 40,
+        },
+    ],
+    // Level 63
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 45,
+        },
+    ],
+    // Level 64
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 20,
+            count: 50,
+        },
+    ],
+    // Level 65
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 55,
+        },
+    ],
+    // Level 66
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 60,
+        },
+    ],
+    // Level 67
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 65,
+        },
+    ],
+    // Level 68
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 70,
+        },
+    ],
+    // Level 69
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 25,
+            count: 75,
+        },
+    ],
+    // Level 70
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 30,
+            count: 80,
+        },
+    ],
+    // Level 71
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 20,
+            count: 100,
+        },
+        {
+            type: 12,
+            start: 22,
+            end: 35,
+            count: 40,
+        },
+    ],
+    // Level 72
+    [
+        {
+            type: 10,
+            start: 0,
+            end: 15,
+            count: 150,
+        },
+        {
+            type: 11,
+            start: 5,
+            end: 25,
+            count: 100,
+        },
+        {
+            type: 12,
+            start: 27,
+            end: 40,
+            count: 50,
+        },
+    ],
+    // Level 73
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 20,
+            count: 120,
+        },
+        {
+            type: 12,
+            start: 22,
+            end: 35,
+            count: 60,
+        },
+    ],
+    // Level 74
+    [
+        {
+            type: 11,
+            start: 0,
+            end: 25,
+            count: 140,
+        },
+        {
+            type: 12,
+            start: 27,
+            end: 40,
+            count: 70,
+        },
+    ],
+    // Level 75
+    [
+        {
+            type: 12,
+            start: 0,
+            end: 30,
+            count: 90,
         },
     ],
 ]

@@ -16,21 +16,19 @@ const RADIAN = Math.PI/180
 
 // Waypoint and tunnel data
 const SHOW_WAY_LINES = false
+const SHOW_PONDS = false
 const WAY_LINE_WIDTH = 50
-const MAP = MAPS_DATA[1]
-const WAYPOINTS = MAP.waypoints
-const TUNNELS = MAP.tunnels ? MAP.tunnels : []
-const PONDS = MAP.ponds ? MAP.ponds : []
 
 let pop = new Audio('../sounds/pop.mp3');
 // Gameplay settings
-const START_MONEY = 5800 // 800 is good
-const START_LIVES = 10
+var START_MONEY = 9999999 // 650 is good
+var START_LIVES = 99999 // 150 is good
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
 const FRAMES_IN_SECOND = 30
-const GAME_SPEEDS = [1.8,3.6,5.4]
+const GAME_SPEEDS = [3, 6]
 const TIME_BETWEEN_ROUND = 100
+const AUTO_START = true
 
 //------------------------------------VARIABLES----------------------------------------\\
 
@@ -40,13 +38,14 @@ const TIME_BETWEEN_ROUND = 100
 var printMenuMonkeyVar = false
 var lives = START_LIVES
 var running = false
+var isRush = false
 var balloons = []
 var monkeys = []
 var arrows = []
 var animations = []
 var coins = []
 var time = 0
-var speedFactor = 1.8 // 1.8
+var speedFactor = GAME_SPEEDS[0]
 var mouse
 
 // Counter and money
@@ -59,6 +58,7 @@ var currentRound = 1
 var roundTime = -50
 var isBetweenRounds = true
 var roundClusters = []
+var times = []
 
 
 
@@ -83,16 +83,16 @@ function start() {
         running = false
     } else {
         restart()
-        running = true
+        // running = true // running from restart
         animate()
     }
     updateStartButton()
 }
 
-function restart() {
+function restart() {    
     // Gameplay state
     lives = START_LIVES
-    running = false
+    running = true
     balloons = []
     monkeys = []
     arrows = []
@@ -107,14 +107,25 @@ function restart() {
     printMenuMonkeyVar = false
 
     // Rounds
-    
-    currentRound = 25
+    currentRound = 1
+    times = []
+    isBetweenRounds = true
     roundTime = -50
     roundClusters = []
 
     updateStartButton()
+    setupRound(currentRound)
     printFrame()
     c.img(100,100,50,50, generalImages['pop'])
+}
+
+function restartChooseMap(){
+    console.log("Going back to Home Page, starting over...")
+    running = false
+    startingUI = true
+    frameUI = 0
+    map = 0
+    animateStartingUI()
 }
 
 function gameOver() {
@@ -141,7 +152,7 @@ function updateStartButton() {
 //-------------------------------TUNNELS----------------------------------------\\
 
 function insideTunnel(p, index) {
-    tunnel = TUNNELS[index]
+    tunnel = map.tunnels[index]
     t = {x: tunnel.x-tunnel.w/2, y: tunnel.y-tunnel.h/2, w: tunnel.w, h: tunnel.h}
     if (p.x > t.x & p.y > t.y & p.x < t.x+t.w & p.y < t.y+t.h) {
         return true
@@ -191,16 +202,18 @@ function updateMonkeysPosition() { // called every frame
 //-------------------------------------PRINTING FUNCTIONS-------------------------------------------\\
 
 function printBackground() {
-    c.img(MW/2,MH/2,MW,MH, mapImages[MAP.id - 1])
+    c.img(MW/2,MH/2,MW,MH, mapImages[map.id - 1])
     if (SHOW_WAY_LINES) {
-        c.line(WAYPOINTS, "gray", WAY_LINE_WIDTH)
+        c.line(map.waypoints, "gray", WAY_LINE_WIDTH)
     }
-    //printPonds()
+    if (SHOW_PONDS) {
+        printPonds()
+    }
 }
 
 function printPonds() {
-    for (let index = 0; index < PONDS.length; index++) {
-        const pondD = PONDS[index]
+    for (let index = 0; index < map.ponds.length; index++) {
+        const pondD = map.ponds[index]
         for (let i = 0; i < pondD.length; i++) {
             const pond = pondD[i]
             c.oval(pond.x, pond.y, pond.radius*2, pond.radius*2, "black", 0, 0.5)
@@ -209,7 +222,7 @@ function printPonds() {
 }
 
 function printTunnels() {
-    for (const t of TUNNELS) {
+    for (const t of map.tunnels) {
         c.rect(t.x, t.y, t.w, t.h)
     }
 }
@@ -281,14 +294,34 @@ function printMoneyHearts() {
     var xStart = 70
     var offset = -5
     const yPos = 150
+
+    // time since started the game
+    // assuming already in between rounds
+    if (!isBetweenRounds) { // game is going... -> [ [0,5,1], [6,10,2]-> 2 ] ==> 5 + 2
+        times[times.length-1][1] = new Date()
+        times[times.length-1][2] = speedFactor
+    }
+    const finalTimeAlive = times.reduce((sum, [x, y, z]) => sum + (y - x)*(z/GAME_SPEEDS[0]), 0)
+
+    c.img(xStart-offset, 45, 45, 45, generalImages['sandwatch'])
+    const sec = Math.floor(finalTimeAlive/1000)
+    var seconds = '00'
+    if (sec%60 < 10){
+        seconds = '0'+sec%60
+    } else {
+        seconds = sec%60
+    }
+    const timeText = `${Math.floor(sec/60)}:${seconds}`
+    c.text(timeText, 115 + 2*offset, 70, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+
     // money
     var livesP = lives < 0 ? 0 : lives
-    c.img(xStart-10, 70, 60, 60, generalImages['coins'])
-    c.text(money, 105, 90, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+    c.img(xStart-10, yPos-45, 60, 60, generalImages['coins'])
+    c.text(money, 105, yPos-25, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
 
     // lives
-    c.img(xStart + offset, yPos-15, 60, 60, generalImages['heart'])
-    c.text(livesP, 110 + offset, yPos, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+    c.img(xStart + offset, yPos+15, 60, 60, generalImages['heart'])
+    c.text(livesP, 110 + offset, yPos+35, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
 }
 
 //-----------------------------MONKEY'S RELOCATION AND PURCHASE--------------------------------\\
@@ -465,7 +498,7 @@ function getMousePos(evt) { // gives the position of the  mouse on the canvas
 
 function addBalloon(type) { // add balloon to the game
     nextIndex = 0
-    next = WAYPOINTS[nextIndex]
+    next = map.waypoints[nextIndex]
     balloons.push(new Balloon({ x: next.x, y: next.y, type, next: nextIndex }))
 }
 

@@ -105,8 +105,8 @@ class Balloon {
 	}
 
 	distanceFromWayPoint(waypoint) {
-		let diffX = WAYPOINTS[waypoint].x - this.x; // Calculate difference in x coordinates
-		let diffY = WAYPOINTS[waypoint].y - this.y; // Calculate difference in y coordinates
+		let diffX = map.waypoints[waypoint].x - this.x; // Calculate difference in x coordinates
+		let diffY = map.waypoints[waypoint].y - this.y; // Calculate difference in y coordinates
 		let pMagnitute = calcMag(diffX, diffY, 0, 0); // Calculate the magnitude of the difference using the calcMag() function
 		return pMagnitute
 	}
@@ -140,8 +140,8 @@ class Balloon {
 		}
 		// get the balloon object from the 'balloons' array using the provided 'index'
 		const balloonInfo = BALLOONS_INFO[this.type-1] // get the balloon information from 'BALLOONS_INFO' using the balloon type
-		var speed = this.freeze.speedEffect * balloonInfo.speed * (speedFactor)/GAME_SPEEDS[0] // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
-		var next = WAYPOINTS[this.next] // get the next waypoint from the 'WAYPOINTS' array using the 'next' property of the balloon object
+		var speed = this.freeze.speedEffect * balloonInfo.speed * speedFactor // calculate the balloon speed by multiplying the balloon information speed with the constant 'SPEED_FACTOR'
+		var next = map.waypoints[this.next] // get the next waypoint from the 'map.waypoints' array using the 'next' property of the balloon object
 
 		// calculate balloon movement
 		var angle = Math.atan2(next.y - this.y, next.x - this.x) // calculate the angle between the balloon and the next waypoint using 'Math.atan2'
@@ -152,7 +152,7 @@ class Balloon {
 		// if balloon reached waypoint
 		if (dis < speed) { // if the balloon has reached the next waypoint
 			this.next++ // move the 'next' property of the balloon object to the next waypoint
-			if (this.next == WAYPOINTS.length) { // if the balloon has reached the last waypoint
+			if (this.next == map.waypoints.length) { // if the balloon has reached the last waypoint
 				this.deleteBalloon()
 				lives -= balloonInfo.health
 			}
@@ -162,8 +162,8 @@ class Balloon {
 	}
 
 	isUnderTunnel() {
-		for (let i = 0; i < TUNNELS.length; i++) {
-			let t = TUNNELS[i]
+		for (let i = 0; i < map.tunnels.length; i++) {
+			let t = map.tunnels[i]
 			if (t.under.includes(this.next) & insideTunnel(this, i)) {
 				return true
 			}
@@ -207,12 +207,12 @@ class Balloon {
 			height = MOAB_SIZE_Y;
 
 			// Calculate differences in x and y coordinates between the next and previous waypoints.
-			let diffX = WAYPOINTS[this.next].x - WAYPOINTS[this.next - 1].x;
-			let diffY = WAYPOINTS[this.next].y - WAYPOINTS[this.next - 1].y;
+			let diffX = map.waypoints[this.next].x - map.waypoints[this.next - 1].x;
+			let diffY = map.waypoints[this.next].y - map.waypoints[this.next - 1].y;
 			let diffX2 = diffX, diffY2 = diffY
-			if (this.next + 1 != WAYPOINTS.length) { // if the balloon is on the last waypoint then not rotate
-				diffX2 = WAYPOINTS[this.next + 1].x - WAYPOINTS[this.next].x;
-				diffY2 = WAYPOINTS[this.next + 1].y - WAYPOINTS[this.next].y;
+			if (this.next + 1 != map.waypoints.length) { // if the balloon is on the last waypoint then not rotate
+				diffX2 = map.waypoints[this.next + 1].x - map.waypoints[this.next].x;
+				diffY2 = map.waypoints[this.next + 1].y - map.waypoints[this.next].y;
 			}
 
 
@@ -223,8 +223,8 @@ class Balloon {
 
 			// Calculate the previous degree value for the MOAB if the balloon has passed more than two waypoints.
 			if (this.next >= 2) {
-				let diffX3 = WAYPOINTS[this.next - 1].x - WAYPOINTS[this.next - 2].x;
-				let diffY3 = WAYPOINTS[this.next - 1].y - WAYPOINTS[this.next - 2].y;
+				let diffX3 = map.waypoints[this.next - 1].x - map.waypoints[this.next - 2].x;
+				let diffY3 = map.waypoints[this.next - 1].y - map.waypoints[this.next - 2].y;
 				pre_deg = -Math.atan2(diffY3, diffX3) / RADIAN;
 			}
 
