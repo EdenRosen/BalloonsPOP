@@ -152,4 +152,5 @@ class Canvas {
       ctx.strokeText(content, x, y);
     }
   }
+
 }

@@ -21,8 +21,10 @@ const WAY_LINE_WIDTH = 50
 
 let pop = new Audio('../sounds/pop.mp3');
 // Gameplay settings
-var START_MONEY = 9999999 // 650 is good
-var START_LIVES = 99999 // 150 is good
+// var START_MONEY = 650
+// var START_LIVES = 150
+var START_MONEY = 9999999
+var START_LIVES = 9999999
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
 const FRAMES_IN_SECOND = 30
@@ -55,9 +57,9 @@ var money = START_MONEY
 
 // Rounds
 var currentRound = 1
-var roundTime = -50
+// var roundTime = -50
 var isBetweenRounds = true
-var roundClusters = []
+var activeClusters = []
 var times = []
 
 
@@ -110,8 +112,8 @@ function restart() {
     currentRound = 1
     times = []
     isBetweenRounds = true
-    roundTime = -50
-    roundClusters = []
+    // roundTime = -50
+    activeClusters = []
 
     updateStartButton()
     setupRound(currentRound)
@@ -432,6 +434,9 @@ addEventListener('click', (event) => { // add an event listener to the click eve
 
 addEventListener('mousemove', (event) => {
     var click = canvasClick(event) // where on the screen
+    if (infoSession) {
+        bubbleLoc = getMousePos(event)
+    }
     if (click != 'outside_canvas') {        
         if (click == 'map') { // create a new instance
             if (createMonkey != 0) {

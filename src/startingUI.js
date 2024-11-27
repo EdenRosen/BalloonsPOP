@@ -19,6 +19,9 @@ function animateStartingUI() {
         requestAnimationFrame(animateStartingUI)
     }
     mainBoard()
+    if (infoSession) {
+        startDrawBubble()
+    }
 }
 
 function mainBoard() {
@@ -45,7 +48,6 @@ function mainBoard() {
         const width = 700
         c.img(CW/2, CH/2, width, width*0.48, generalImages['difficulties'])
     }
-    
 }
 
 function startSecondUI(map_index) {
