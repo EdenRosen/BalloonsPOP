@@ -1,4 +1,5 @@
-	// Function to animate the game
+activeClusters = []
+
 function animate() {
 	if (running) {
 		// If game is running
@@ -11,62 +12,56 @@ function animate() {
 	updateAnimations()
 	updateCoins()
 
-	time++
+	time++ // how many frames have we been through
 	printFrame()
+	if (infoSession) {
+		startDrawBubble()
+	}
 	
 	if (AUTO_START && currentRound > 1) {
 		isBetweenRounds = false
 	}
+	// console.log(roundTime)
 	if (!isBetweenRounds) {
 		
-		roundTime++
-		// if (roundTime < 100) {
-		// 	const m_width = 700
-		// 	const m_height = 200
-        //     c.rect(CW/2, CH/2, m_width, m_height, "rgba(0,0,0)")
-        //     c.text(`ROUND ${currentRound}`, CW/2, CH/2+45, 132, "yellow", false, 'Edu NSW ACT Foundation', true) 
-		// }
+		// roundTime++
 		
 
-		var roundEnded = true
-		if (roundTime == 0) {
-			setupRound(currentRound)
-		}
-		if (roundTime >= 0) {
-			for (let cluster of roundClusters) {
+		
+		if (activeClusters.length == 0 && balloons.length == 0) { // if round ended
+			nextRound()
+		} else {
+			for (let i = 0; i < activeClusters.length; i++) {
+				const cluster = activeClusters[i]
 				const deploy = 
-					cluster.count > 0 && roundTime >= cluster.start &&
-					(roundTime - cluster.start) % (cluster.rate | 1) == 0
+					cluster.count > 0 && time >= cluster.start &&
+					(time - cluster.start) % (cluster.rate | 1) == 0
 				if (deploy) {
-					cluster.count--
+					activeClusters[i].count--
 					addBalloon(cluster.type)
 				}
-				if (cluster.count > 0) {
-					roundEnded = false
+				if (activeClusters[i].count == 0) {
+					activeClusters.splice(i, 1)
 				}
 			}
-		} else {
-			roundEnded = false
-		}
-
-		if (roundEnded && balloons.length == 0) {
-			roundTime = -TIME_BETWEEN_ROUND
-			console.log(times)
-			times[times.length-1][1] = new Date()
-			currentRound++
-
-			isBetweenRounds = false
 		}
 	}
 }
 
+function nextRound() {
+	currentRound++
+	setupRound(currentRound)
+	times[times.length-1][1] = new Date()
+	console.log(activeClusters);
+	
+}
+
 function setupRound(round) {
 	const roundData = ROUNDS_DATA[round-1]
-	roundClusters = []
 	for (let i in roundData) {
 		const cluster = roundData[i]
-		const start = cluster.start * FRAMES_IN_SECOND
-		const end = cluster.end * FRAMES_IN_SECOND
+		const start = cluster.start * FRAMES_IN_SECOND + time
+		const end = cluster.end * FRAMES_IN_SECOND + time
 		const rate = Math.floor((end - start) / cluster.count)
 		const newCluster = {
 			type: cluster.type,
@@ -74,7 +69,7 @@ function setupRound(round) {
 			rate,
 			count: cluster.count,
 		}
-		roundClusters.push(newCluster)
+		activeClusters.push(newCluster)
 	}
 }
 

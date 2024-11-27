@@ -92,15 +92,16 @@ function menu_click() { // x and y coordinates
             times.push([date, 0, speedFactor])
         }
         return -1
-    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-150, TABLE_WIDTH, 100)) {
+    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-150, TABLE_WIDTH, 100)) { // rush
         const date = new Date()
-        currentRound += 1
-        roundTime = -1
-        if (!isBetweenRounds) {// in middle of a round
+        if (isBetweenRounds) {
+            isBetweenRounds = false
+			times.push([new Date(), 0, speedFactor])
+        } else {
+            nextRound()
             times[times.length-1][1]=date
+            times.push([date, 0, speedFactor])
         }
-        isBetweenRounds = false
-        times.push([date, 0, speedFactor])
     }
 
 
