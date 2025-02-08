@@ -253,7 +253,7 @@ class Arrow {
      * Deletes the arrow from the game.
     */
     deleteArrow() {
-        index = arrows.indexOf(this);
+        const index = arrows.indexOf(this);
         if (index != -1) {
             arrows.splice(index, 1);
         }

@@ -1,5 +1,6 @@
 activeClusters = []
 
+
 function animate() {
 	if (running) {
 		// If game is running
@@ -14,9 +15,8 @@ function animate() {
 
 	time++ // how many frames have we been through
 	printFrame()
-	if (infoSession) {
-		startDrawBubble()
-	}
+	
+	cursor.updateFrame()
 	
 	if (AUTO_START && currentRound > 1) {
 		isBetweenRounds = false
@@ -83,6 +83,7 @@ function printFrame() {
 	printMonkeys()
 	printCoins()
 	printAnimations()
+	printInfernoBeams()
 	printMenu()
 	if (printMenuMonkeyVar) { // if 0 then false
 		printMenuMonkey()

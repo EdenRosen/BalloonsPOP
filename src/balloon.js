@@ -76,7 +76,7 @@ class Balloon {
 				this.type = children[0].type;
 			} else {
 				this.createBalloonChildren()
-				this.deleteBalloon()
+				this.pop = true
 				return
 			}
 		}
@@ -111,10 +111,7 @@ class Balloon {
 		return pMagnitute
 	}
 
-	// Calculates the percentage of completion for the current waypoint
-	calculatePercentDoneOfWayPoint() {
-		// Calculate distance from target waypoint using the distanceFromWayPoint method
-		// The next waypoint is used as the target
+	distanceFromNextWayPoint() {
 		return this.distanceFromWayPoint(this.next)
 	}
 

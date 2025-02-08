@@ -10,6 +10,7 @@ const MONKEY_IMAGES_INFO = [
     { profile: true, base: true, options: [0] }, // Sunflower
     { profile: true, base: false, options: [0] }, // Winter Watermelon
     { profile: true, base: false, options: [0] }, // Submarine
+    { profile: true, base: false, options: [3] }, // Inferno Tower
 ]
 
 // Image resources

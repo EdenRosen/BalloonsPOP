@@ -62,7 +62,7 @@ var isBetweenRounds = true
 var activeClusters = []
 var times = []
 
-
+var cursor = new Cursor()
 
 
 //---------------------------------------SETUP----------------------------------------------\\
@@ -127,6 +127,7 @@ function restartChooseMap(){
     startingUI = true
     frameUI = 0
     map = 0
+    isRush = false
     animateStartingUI()
 }
 
@@ -292,6 +293,14 @@ function printAnimations() {
     }
 }
 
+function printInfernoBeams() {
+    for (const monkey of monkeys) {
+        if (monkey.type == 10) {
+            monkey.printInfernoBeam()
+        }
+    }
+}
+
 function printMoneyHearts() {
     var xStart = 70
     var offset = -5
@@ -432,11 +441,22 @@ addEventListener('click', (event) => { // add an event listener to the click eve
     }
 })
 
+function createMonkeyByType(type) {
+    var new_monkey
+    if (type == 7) {
+        new_monkey = new Factory({ x: mouse.x, y: mouse.y, type })
+    } else if (type == 10) {
+        new_monkey = new Inferno({ x: mouse.x, y: mouse.y, type })
+    } else {
+        new_monkey = new Monkey({ x: mouse.x, y: mouse.y, type })
+    }
+    
+    return new_monkey
+}
+
 addEventListener('mousemove', (event) => {
     var click = canvasClick(event) // where on the screen
-    if (infoSession) {
-        bubbleLoc = getMousePos(event)
-    }
+    cursor.updateLoc(getMousePos(event))
     if (click != 'outside_canvas') {        
         if (click == 'map') { // create a new instance
             if (createMonkey != 0) {
@@ -446,8 +466,7 @@ addEventListener('mousemove', (event) => {
                     m.menuOpen = false
                     printMenuMonkeyVar = 0
                 }
-                index = createMonkey
-                new_monkey = new Monkey({ x: mouse.x, y: mouse.y, type: index })
+                const new_monkey = createMonkeyByType(createMonkey)
                 monkeys.push(new_monkey)
                 createMonkey = 0
                 relocateMonkey = monkeys.length
