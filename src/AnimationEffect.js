@@ -35,7 +35,7 @@ class AnimationEffect {
     }
 
     delete() {
-        index = animations.indexOf(this);
+        const index = animations.indexOf(this);
         if (index != -1) {
             animations.splice(index, 1);
         }

@@ -84,8 +84,8 @@ class Monkey {
         this.creationTime = time
     }
 
-    updateBalloonsPopped() {
-        this.balloonsPopped++
+    updateBalloonsPopped(popCount=1) {
+        this.balloonsPopped += popCount
     }
 
     /**
@@ -241,7 +241,7 @@ class Monkey {
 
     print() {
         // print range
-        if (this.showRange | this.relocating | this.menuOpen) {
+        if (!isGameOver() && (this.showRange | this.relocating | this.menuOpen)) {
             var color = "black"
             if ( !this.legalLocation() | ( this.bought == false & money < this.price) ) { // if monkey is at an illegal location to be placed, then red range
                 color = "red"
@@ -287,11 +287,10 @@ class Monkey {
             animation.print()
             
         }
-        
     }
 
     findFarthestBalloon() {
-        let farthest = []
+        let farthest
         for (const balloon of balloons) {
             // filter hidden balloons
             if (balloon.hidden) {
@@ -312,6 +311,7 @@ class Monkey {
             }
         }
         return farthest
+    
     }
 
     moveMonkey() {
@@ -372,7 +372,6 @@ class Monkey {
         this.setMainPath()
         money -= monkeyData.price
         const activated = this.getActivated() // list of all activations
-        console.log(this.levels, this.mainPath, activated)
 
         
         this.setOrigin()
@@ -414,9 +413,6 @@ class Monkey {
 
 // shooter is defined by if it can rotate
 class Shooter extends Monkey {
-    constructor({ x, y, type=1 }) {
-        super(x, y, type)
-    }
     
     shoot() {
         const arr = this.arrow
@@ -442,18 +438,18 @@ class Shooter extends Monkey {
             }
         }
         
-
         function shootByOffset(index, me) {
             var offsetX = offsets[index][1]
             var offsetY = offsets[index][0]
             var a1 = Math.atan2(offsetY, offsetX)
+            
             var a3 = a2 + a1
 
             var mag = calcMag(0, 0, offsetX, offsetY)
-
+            
             var arrX = Math.cos(a3) * mag + me.x
             var arrY = Math.sin(a3) * mag + me.y
-
+            
             let arrow = new Arrow({
                 x: arrX,
                 y: arrY,
@@ -470,6 +466,8 @@ class Shooter extends Monkey {
                 freeze: arr.freeze,
                 monkeyParent: me,
             })
+            console.log(arrow)
+
             arrows.push(arrow)
 
         }
@@ -515,14 +513,13 @@ class Shooter extends Monkey {
     }
 
     moveMonkey() {
-        if (this.relocating) { // if monkey is relocating, quit the function
+        if (this.relocating || isGameOver()) { // if monkey is relocating, quit the function
             return
         }
-
         let target = this.findFarthestBalloon()
         if (target == undefined) { // if no balloon was found
             return
-        } else if ((time-this.creationTime) % Math.round(this.cooldown/speedFactor) == 0) { // if the time is a multiple of the monkey's cooldown time
+        } else if ((time-this.creationTime) % Math.max(Math.round(this.cooldown/speedFactor), 1) == 0) { // if the time is a multiple of the monkey's cooldown time
             if (this.numShooters > 1) {
                 const angleMultiplier = 360/this.numShooters
                 for (let num = 0; num < this.numShooters; num++) {
@@ -539,10 +536,12 @@ class Shooter extends Monkey {
             
         if (this.rotatable) {
             var angle = Math.atan2(target.y - this.y, target.x - this.x) // calculate the angle between the monkey and the farthest balloon using 'Math.atan2'
+            
             angle /= -RADIAN // convert the angle from radians to degrees by dividing by the constant 'RADIAN' and negate the result
-      
+            
             this.angle = angle
         }
+        
     }
 }
 
@@ -553,9 +552,7 @@ class Factory extends Monkey {
     }
 
     moveMonkey() {
-        console.log(222);
-        
-        if (this.relocating) { // if monkey is relocating, quit the function
+        if (this.relocating || isGameOver()) { // if monkey is relocating, quit the function
             return
         }
         this.moneyFactory()
@@ -600,7 +597,7 @@ class Inferno extends Monkey {
     }
 
     moveMonkey() {
-        if (this.relocating) { // if monkey is relocating, quit the function
+        if (this.relocating || isGameOver()) { // if monkey is relocating, quit the function
             return
         }
         this.moveInferno()
@@ -627,14 +624,22 @@ class Inferno extends Monkey {
     }
 
     printInfernoBeam() {
+        if (isGameOver()) {
+            return
+        }
         for (const balloon of this.targets) {
-            c.line([{x: this.x, y: this.y-150}, balloon], 'yellow', 15)
+            c.line([{x: this.x, y: this.y-120}, balloon], 'yellow', 15)
+            c.line([{x: this.x, y: this.y-120}, balloon], 'orange', 9)
+            c.line([{x: this.x, y: this.y-120}, balloon], 'red', 3)
         }
     }
 
     moveInferno() {
         this.updateStrongestBalloons(5)
-        console.log(this.targets);
+        for (const balloon of this.targets) {
+            balloon.applyDamage(0.1)
+            
+        }
         
     }
 }
