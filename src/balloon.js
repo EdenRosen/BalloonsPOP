@@ -46,9 +46,8 @@ class Balloon {
 		// Handle when balloon takes damage
 		let damage = arrow.strength
 		if (this.type == 8 & !arrow.armoredBalloons) {
-			damage = 0
+			return
 		}
-		let health = this.health - damage
 		if (arrow.freeze) {
 			this.freeze.speedEffect = arrow.freeze.speedEffect
 			this.freeze.cooldown = arrow.freeze.cooldown
@@ -56,13 +55,22 @@ class Balloon {
 			return
 		}
 
+		const popCount = this.applyDamage(damage)
+		
+		arrow.monkeyParent.updateBalloonsPopped(popCount)
+	}
+	
+	applyDamage(damage) {
+		let health = this.health - damage
+		var popCount = 0
+
 		// Keep decrementing health until it becomes non-positive
 		while (health <= 0) {
 			// Get children for this balloon type
 			let children = BALLOONS_INFO[this.type - 1].children;
-			arrow.monkeyParent.updateBalloonsPopped()
+			popCount++
 
-			money += arrow.moneyMultiplier * BALLOONS_INFO[this.type - 1].money
+			money += BALLOONS_INFO[this.type - 1].money
 
 			if (children.length == 0 | this.isMOAB()) {
 				this.createBalloonChildren()
@@ -76,13 +84,14 @@ class Balloon {
 				this.type = children[0].type;
 			} else {
 				this.createBalloonChildren()
-				this.deleteBalloon()
+				this.pop = true
 				return
 			}
 		}
 
 		// Update balloon's health if it has not been removed
-		this.health = health;
+		this.health = health
+		return popCount
 	}
 
 	createBalloonChildren() {
@@ -111,10 +120,7 @@ class Balloon {
 		return pMagnitute
 	}
 
-	// Calculates the percentage of completion for the current waypoint
-	calculatePercentDoneOfWayPoint() {
-		// Calculate distance from target waypoint using the distanceFromWayPoint method
-		// The next waypoint is used as the target
+	distanceFromNextWayPoint() {
 		return this.distanceFromWayPoint(this.next)
 	}
 

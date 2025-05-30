@@ -19,9 +19,8 @@ function animateStartingUI() {
         requestAnimationFrame(animateStartingUI)
     }
     mainBoard()
-    if (infoSession) {
-        startDrawBubble()
-    }
+    
+	cursor.updateFrame()
 }
 
 function mainBoard() {

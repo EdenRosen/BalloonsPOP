@@ -1,10 +1,19 @@
 activeClusters = []
 
+
 function animate() {
 	if (running) {
 		// If game is running
 		requestAnimationFrame(animate); // Request to animate the next frame
 	}
+	// if (running) {
+    //     setTimeout(() => {
+    //         // Your animation code here
+
+    //         // Request to animate the next frame
+    //         animate();
+    //     }, 1000 / 200);
+    // }
 	// update the state of the element
 	updateBalloonsPosition()
 	updateMonkeysPosition()
@@ -12,24 +21,25 @@ function animate() {
 	updateAnimations()
 	updateCoins()
 
-	time++ // how many frames have we been through
-	printFrame()
-	if (infoSession) {
-		startDrawBubble()
+	if (!gameWon) {
+		time++ // how many frames have we been through
 	}
+	printFrame()
 	
+	cursor.updateFrame()
+	handleRounds() // handle the rounds of the game
+	
+}
+
+function handleRounds() {
 	if (AUTO_START && currentRound > 1) {
 		isBetweenRounds = false
 	}
-	// console.log(roundTime)
+	
 	if (!isBetweenRounds) {
 		
-		// roundTime++
-		
-
-		
 		if (activeClusters.length == 0 && balloons.length == 0) { // if round ended
-			nextRound()
+			nextRound(roundEnded = true)
 		} else {
 			for (let i = 0; i < activeClusters.length; i++) {
 				const cluster = activeClusters[i]
@@ -48,12 +58,22 @@ function animate() {
 	}
 }
 
-function nextRound() {
-	currentRound++
-	setupRound(currentRound)
-	times[times.length-1][1] = new Date()
-	console.log(activeClusters);
-	
+function nextRound(roundEnded = false) {
+	if (gameWon) {
+		return
+	}
+	if (lives > 0 && currentRound > 1){//ROUNDS_DATA.length) {
+		// if all rounds are done
+		if (roundEnded) 
+			gameWon = true
+			times[times.length-1][1] = new Date()
+		return
+	}
+	if (!isGameOver()) {
+		currentRound++
+		setupRound(currentRound)
+		times[times.length-1][1] = new Date()
+	}
 }
 
 function setupRound(round) {
@@ -83,8 +103,9 @@ function printFrame() {
 	printMonkeys()
 	printCoins()
 	printAnimations()
+	printInfernoBeams()
 	printMenu()
-	if (printMenuMonkeyVar) { // if 0 then false
+	if (printMenuMonkeyVar && !isGameOver()) { // if 0 then false
 		printMenuMonkey()
 	}
 

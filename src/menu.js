@@ -75,7 +75,7 @@ function printMenu() {
 }
 
 function menu_click() { // x and y coordinates
-    if (!running) { // can buy only when game is running
+    if (!running || isGameOver()) { // can buy only when game is running
         return
     }
     if (isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100)) {

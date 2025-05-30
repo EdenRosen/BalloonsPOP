@@ -24,7 +24,7 @@ let pop = new Audio('../sounds/pop.mp3');
 // var START_MONEY = 650
 // var START_LIVES = 150
 var START_MONEY = 9999999
-var START_LIVES = 9999999
+var START_LIVES = 1
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
 const FRAMES_IN_SECOND = 30
@@ -39,6 +39,7 @@ const AUTO_START = true
 // Gameplay state
 var printMenuMonkeyVar = false
 var lives = START_LIVES
+var gameWon = false
 var running = false
 var isRush = false
 var balloons = []
@@ -62,7 +63,7 @@ var isBetweenRounds = true
 var activeClusters = []
 var times = []
 
-
+var cursor = new Cursor()
 
 
 //---------------------------------------SETUP----------------------------------------------\\
@@ -78,6 +79,10 @@ function updateOnce() {
     printFrame()
     printMenu()
     start()
+}
+
+function isGameOver() {
+    return lives <= 0 || gameWon;
 }
 
 function start() {
@@ -127,16 +132,27 @@ function restartChooseMap(){
     startingUI = true
     frameUI = 0
     map = 0
+    isRush = false
     animateStartingUI()
 }
 
 function gameOver() {
     lives = 0
-    c.text('Game Over', 180, 560, 230, 'red', true, "Sans-serif")
+    c.text('GAME OVER', 180, 560, 230, 'red', true, "Sans-serif")
+}
+function printGameWon() {
+    c.text('YOU WIN!', 180, 560, 230, 'Green', true, "Sans-serif")
+    c.rect(730, 680, 310, 120, "rgb(4, 75, 116)")
+    const timeText = getTimeString()
+    c.text(timeText, 625, 700, 100, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+
+    // print rectangle for background to the time text
 }
 
 function gameOverCheck() {
-    if (lives <= 0) {
+    if (gameWon) {
+        printGameWon()
+    } else if (lives <= 0) {
         lives = 0
         gameOver()
     }
@@ -292,6 +308,14 @@ function printAnimations() {
     }
 }
 
+function printInfernoBeams() {
+    for (const monkey of monkeys) {
+        if (monkey.type == 10) {
+            monkey.printInfernoBeam()
+        }
+    }
+}
+
 function printMoneyHearts() {
     var xStart = 70
     var offset = -5
@@ -299,22 +323,14 @@ function printMoneyHearts() {
 
     // time since started the game
     // assuming already in between rounds
-    if (!isBetweenRounds) { // game is going... -> [ [0,5,1], [6,10,2]-> 2 ] ==> 5 + 2
+    if (!isBetweenRounds && !isGameOver()) { // game is going... -> [ [0,5,1], [6,10,2]-> 2 ] ==> 5 + 2
         times[times.length-1][1] = new Date()
         times[times.length-1][2] = speedFactor
     }
-    const finalTimeAlive = times.reduce((sum, [x, y, z]) => sum + (y - x)*(z/GAME_SPEEDS[0]), 0)
-
+    const timeText = getTimeString()
     c.img(xStart-offset, 45, 45, 45, generalImages['sandwatch'])
-    const sec = Math.floor(finalTimeAlive/1000)
-    var seconds = '00'
-    if (sec%60 < 10){
-        seconds = '0'+sec%60
-    } else {
-        seconds = sec%60
-    }
-    const timeText = `${Math.floor(sec/60)}:${seconds}`
     c.text(timeText, 115 + 2*offset, 70, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+
 
     // money
     var livesP = lives < 0 ? 0 : lives
@@ -324,6 +340,19 @@ function printMoneyHearts() {
     // lives
     c.img(xStart + offset, yPos+15, 60, 60, generalImages['heart'])
     c.text(livesP, 110 + offset, yPos+35, 55, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+}
+
+function getTimeString() {
+    const finalTimeAlive = times.reduce((sum, [x, y, z]) => sum + (y - x)*(z/GAME_SPEEDS[0]), 0)
+    const sec = Math.floor(finalTimeAlive/1000)
+    var seconds = '00'
+    if (sec%60 < 10){
+        seconds = '0'+sec%60
+    } else {
+        seconds = sec%60
+    }
+    const timeText = `${Math.floor(sec/60)}:${seconds}`
+    return timeText
 }
 
 //-----------------------------MONKEY'S RELOCATION AND PURCHASE--------------------------------\\
@@ -414,7 +443,7 @@ canvas.addEventListener('contextmenu', e => {
 
 addEventListener('click', (event) => { // add an event listener to the click event
     var click = canvasClick(event)
-    if (click != 'outside_canvas') { // canvas is clicked
+    if (click != 'outside_canvas' && !isGameOver()) { // canvas is clicked
         if (click == 'side_menu') { // menu is clicked
             let index = menu_click()
             if (index < 0) {
@@ -432,11 +461,22 @@ addEventListener('click', (event) => { // add an event listener to the click eve
     }
 })
 
+function createMonkeyByType(type) {
+    var new_monkey
+    if (type == 7) {
+        new_monkey = new Factory({ x: mouse.x, y: mouse.y, type })
+    } else if (type == 10) {
+        new_monkey = new Inferno({ x: mouse.x, y: mouse.y, type })
+    } else {
+        new_monkey = new Shooter({ x: mouse.x, y: mouse.y, type })
+    }
+    
+    return new_monkey
+}
+
 addEventListener('mousemove', (event) => {
     var click = canvasClick(event) // where on the screen
-    if (infoSession) {
-        bubbleLoc = getMousePos(event)
-    }
+    cursor.updateLoc(getMousePos(event))
     if (click != 'outside_canvas') {        
         if (click == 'map') { // create a new instance
             if (createMonkey != 0) {
@@ -446,8 +486,7 @@ addEventListener('mousemove', (event) => {
                     m.menuOpen = false
                     printMenuMonkeyVar = 0
                 }
-                index = createMonkey
-                new_monkey = new Monkey({ x: mouse.x, y: mouse.y, type: index })
+                const new_monkey = createMonkeyByType(createMonkey)
                 monkeys.push(new_monkey)
                 createMonkey = 0
                 relocateMonkey = monkeys.length
