@@ -20,4 +20,5 @@ The application is built using web technologies such as HTML5, CSS3, and JavaScr
 ## Let's play!
 
 Click on the following link to play the game: [Balloons POP](https://edenrosen.github.io/BalloonsPOP/)
+
 Have fun playing it! We would appreciate any feedback or recommendations to help us improve Balloons POP.
