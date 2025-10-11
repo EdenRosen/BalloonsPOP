@@ -1,4 +1,7 @@
-const GENERAL_IMAGES_NAMES = ['maps_bg', 'pop', 'heart', 'coins', 'wooden_floor', 'sun1', 'difficulties', 'sandwatch']
+const GENERAL_IMAGES_NAMES = [
+    'maps_bg', 'pop', 'heart', 'coins', 'wooden_floor', 'sun1', 'difficulties', 'sandwatch',
+    'logo1'
+]
 
 const MONKEY_IMAGES_INFO = [
     { profile: true, base: false, options: [0,0] }, // Monkey
@@ -40,14 +43,16 @@ function loadImages(length, folderName, nameType, names=[], type='png') {
     return namesGiven ? objectImages : images
 }
 
-mapImages = loadImages(4, 'maps', 'map')
-generalImages = loadImages(GENERAL_IMAGES_NAMES.length, 'general', '', GENERAL_IMAGES_NAMES)
-arrowImages = loadImages(8, 'arrows', 'a')
-balloonImages = loadImages(12, 'balloons/origin', 'b')
-frozenBalloonImages = loadImages(11, 'balloons/frozen', 'b')
-animationsData.explosion1 = loadImages(8, 'bombAnimation', 'frame')
-animationsData.freeze1 = loadImages(10, 'freezeAnimation', 'frame')
-animationsData.sunflower = loadImages(59, 'monkeys/monkey7/gif', '', [], 'gif')
+function loadAllImages() {
+    generalImages = loadImages(GENERAL_IMAGES_NAMES.length, 'general', '', GENERAL_IMAGES_NAMES)
+    mapImages = loadImages(4, 'maps', 'map')
+    arrowImages = loadImages(8, 'arrows', 'a')
+    balloonImages = loadImages(12, 'balloons/origin', 'b')
+    frozenBalloonImages = loadImages(11, 'balloons/frozen', 'b')
+    animationsData.explosion1 = loadImages(8, 'bombAnimation', 'frame')
+    animationsData.freeze1 = loadImages(10, 'freezeAnimation', 'frame')
+    animationsData.sunflower = loadImages(59, 'monkeys/monkey7/gif', '', [], 'gif')
+}
 
 // load monkey images
 for (let i = 0; i < MONKEY_IMAGES_INFO.length; i++) {

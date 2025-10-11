@@ -13,19 +13,20 @@ const CIRCLES = [
     {x: CW/2+180, y: 530},
 ]
 
-animateStartingUI()
+var frameCount = 0
+
 function animateStartingUI() {
     if (startingUI) {
         requestAnimationFrame(animateStartingUI)
     }
-    mainBoard()
+    printMainBoard()
     
 	cursor.updateFrame()
 }
 
-function mainBoard() {
+function printMainBoard() {
     // x,y,w,h
-    c.rect(CW/2,CH/2,CW,CH, "turquoise")
+    // c.rect(CW/2,CH/2,CW,CH, "turquoise")
     c.img(CW/2, CH/2, CW, CH, generalImages['maps_bg'])
 
 
@@ -46,6 +47,8 @@ function mainBoard() {
         c.text("Choose difficulty", CW/2, 150, 100, "white", false, 'Arial', true)
         const width = 700
         c.img(CW/2, CH/2, width, width*0.48, generalImages['difficulties'])
+    } else if (frameUI == 2) {
+        c.img(CW/2, CH/2, 100, 100, generalImages['logo1']) 
     }
 }
 
@@ -93,7 +96,6 @@ addEventListener('click', (event) => {
     }
 })
 
-points = []
 addEventListener('click', (event) => {
     if (frameUI > 1) return
     const click = getMousePos(event)

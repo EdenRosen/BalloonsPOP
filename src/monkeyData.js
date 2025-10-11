@@ -15,30 +15,39 @@ const MONKEY_DATA = [
                 cooldown: 180,
                 price: 180,
             }, 
-            activate: {
-
-            }
+            activate: {}
         },
         [
             {
                 name: "Monkey Left level 1",
                 arrow: {
-                    strength: 1,
                     health: 2,
+                    speed: 0.7,
                 },
                 range: 260,
+                cooldown: 140,
                 price: 140,
                 description: "Increases health for better survivability."
             },
             {
                 name: "Monkey Left level 2",
-                range: 270,
+                arrow: {
+                    health: 4,
+                    speed: 0.8,
+                },
+                range: 280,
+                cooldown: 100,
                 price: 420,
                 description: "Extends range for greater reach."
             },
             {
                 name: "Monkey Left level 3",
-                range: 280,
+                arrow: {
+                    health: 6,
+                    speed: 1,
+                },
+                range: 300,
+                cooldown: 70,
                 price: 620,
                 description: "Further increases range for maximum coverage."
             },
@@ -46,20 +55,32 @@ const MONKEY_DATA = [
         [
             {
                 name: "Monkey Right level 1",
-                cooldown: 40,
+                arrow: {
+                    health: 2,
+                    strength: 2,
+                },
+                cooldown: 100,
                 price: 220,
                 description: "Reduces cooldown for faster attacks."
             },
             {
                 name: "Monkey Right level 2",
-                cooldown: 30,
-                price: 420,
+                arrow: {
+                    health: 4,
+                    strength: 4,
+                },
+                cooldown: 60,
+                price: 620,
                 description: "Further reduces cooldown for rapid attacks."
             },
             {
                 name: "Monkey Right level 3",
+                arrow: {
+                    health: 6,
+                    strength: 8,
+                },
                 cooldown: 20,
-                price: 620,
+                price: 1600,
                 description: "Achieves minimum cooldown for maximum speed."
             },
         ],
@@ -549,21 +570,21 @@ const MONKEY_DATA = [
                     speed: 0.7,
                 },
                 range: 220,
-                cooldown: 2,
+                cooldown: 100,
                 price: 240,
                 size: 1.4
             },
             activate: [ // red, orange, yellow
                 {
                     arrow: {
-                        strength: 2,
+                        strength: 4,
                     },
                 },
                 {
                     arrow: {
                         angleError: 3
                     },
-                    cooldown: 4,
+                    cooldown: 30,
                 },
                 {
                     range: 600,
@@ -579,31 +600,31 @@ const MONKEY_DATA = [
                 arrow: {
                     offset: [[9, 30], [-9, 30],],
                     alternating: true,
-                    strength: 1.5,
+                    strength: 2,
                 },
                 range: 240,
-                cooldown: 8,
+                cooldown: 85,
                 price: 560,
                 description: "Increases arrow strength for better attacks."
             },
             {
                 name: "Red shooter level 3",
                 arrow: {
-                    strength: 3,
+                    strength: 4,
                     offset: null,
                     size: 1.1,
                     angleError: 10,
                     offset: [[0, 30]],
                 },
                 range: 250,
-                cooldown: 5,
+                cooldown: 70,
                 price: 850,
                 description: "Improves arrow precision and adds more offset."
             },
             {
                 name: "Red shooter level 4",
                 arrow: {
-                    strength: 4,
+                    strength: 6,
                     size: 1.3,
                     range: 1600,
                 },
@@ -611,6 +632,7 @@ const MONKEY_DATA = [
                 baseSizeRatio: 0.65,
                 size: 2,
                 price: 1560,
+                size: 1.6,
                 description: "Maximizes arrow strength and range for powerful attacks."
             },
         ],
@@ -623,7 +645,7 @@ const MONKEY_DATA = [
                     angleError: 6,
                 },
                 range: 270,
-                cooldown: 6,
+                cooldown: 60,
                 price: 560,
                 description: "Improves arrow accuracy and reduces angle error."
             },
@@ -637,7 +659,7 @@ const MONKEY_DATA = [
                     offset: [[0, 30]],
                 },
                 range: 290,
-                cooldown: 3,
+                cooldown: 30,
                 price: 850,
                 description: "Further reduces angle error for precise attacks."
             },
@@ -645,15 +667,16 @@ const MONKEY_DATA = [
                 name: "Orange shooter level 4",
                 arrow: {
                     strength: 3,
-                    size: 1.3,
+                    offset: null,
+                    size: 1.1,
+                    angleError: 2,
                     offset: [[0, 30]],
-                    range: 1600,
-                    angleError: 0,
                 },
-                baseSizeRatio: 0.65,
-                size: 2,
-                price: 1560,
-                description: "Maximizes arrow precision and strength for deadly accuracy."
+                range: 290,
+                cooldown: 8,
+                price: 2100,
+                size: 1.6,
+                description: "Further reduces angle error for precise attacks."
             },
         ],
         [ // yellow shooter - range & precision
@@ -666,7 +689,7 @@ const MONKEY_DATA = [
                     speed: 1.1,
                 },
                 range: 290,
-                cooldown: 6,
+                cooldown: 80,
                 price: 560,
                 description: "Increases arrow range and speed for better coverage."
             },
@@ -679,9 +702,11 @@ const MONKEY_DATA = [
                     angleError: 6,
                     speed: 1.2,
                     offset: [[0, 30]],
+                    health: 2,
                 },
                 range: 400,
                 price: 850,
+                cooldown: 60,
                 description: "Boosts range and further increases arrow speed."
             },
             {
@@ -693,11 +718,14 @@ const MONKEY_DATA = [
                     range: 1600,
                     angleError: 5,
                     speed: 1.3,
+                    health: 3,
                 },
                 range: 500,
                 baseSizeRatio: 0.65,
+                cooldown: 40,
                 size: 2,
                 price: 1560,
+                size: 1.6,
                 description: "Maximizes range and speed for extraordinary efficiency."
             },
         ],
@@ -718,7 +746,7 @@ const MONKEY_DATA = [
                     range: 600,
                 },
                 range: 270,
-                cooldown: 100,
+                cooldown: 200,
                 price: 520,
                 size: 1.4,
                 armoredBalloons: true,
@@ -726,7 +754,7 @@ const MONKEY_DATA = [
             activate: [ // faster, bigger
                 {
                     
-                    cooldown: 35,
+                    cooldown: 100,
                 },
                 {
                     range: 330,
@@ -748,7 +776,7 @@ const MONKEY_DATA = [
                 },
                 size: 1.8,
                 baseSizeRatio: 0.7,
-                cooldown: 80,
+                cooldown: 150,
                 price: 430,
                 description: "Strengthens rockets and adds offset for more targets."
             },
@@ -760,8 +788,8 @@ const MONKEY_DATA = [
                 },
                 size: 2,
                 baseSizeRatio: 0.75,
-                cooldown: 50,
-                price: 850,
+                cooldown: 100,
+                price: 1250,
                 description: "Increases rocket strength and improves cooldown."
             },
             {
@@ -771,8 +799,8 @@ const MONKEY_DATA = [
                     speed: 0.9,
                     size: 1.2,
                 },
-                cooldown: 25,
-                price: 1530,
+                cooldown: 40,
+                price: 2230,
                 description: "Maximizes rocket strength and range for devastating attacks."
             },
         ],
@@ -790,9 +818,9 @@ const MONKEY_DATA = [
                 },
                 size: 1.8,
                 baseSizeRatio: 0.7,
-                cooldown: 45,
+                cooldown: 180,
                 range: 300,
-                price: 430,
+                price: 930,
                 description: "Improves bomb radius and increases rocket strength."
             },
             {
@@ -808,9 +836,9 @@ const MONKEY_DATA = [
                 },
                 size: 2,
                 baseSizeRatio: 0.75,
-                cooldown: 40,
+                cooldown: 160,
                 range: 340,
-                price: 850,
+                price: 2850,
                 description: "Boosts bomb strength and radius for greater impact."
             },
             {
@@ -827,7 +855,7 @@ const MONKEY_DATA = [
                     },
                 },
                 range: 400,
-                price: 1530,
+                price: 7500,
                 description: "Maximizes bomb strength and radius for massive explosions."
             },
         ]
@@ -876,7 +904,7 @@ const MONKEY_DATA = [
                 arrow: {
                     type: 8,
                     strength: 0,
-                    freeze: {speedEffect: 0.1, cooldown: 100},
+                    freeze: {speedEffect: 0.2, cooldown: 100},
                     size: 1.6,
                     // offset: [[50, 50]],
                     range: 1650,
@@ -906,11 +934,20 @@ const MONKEY_DATA = [
         },
         [
             {
-                name: "Sniper 2",
+                name: "Winter Watermelon level 1",
                 arrow: {
-                    freeze: {speedEffect: 0.15, cooldown: 100},
+                    freeze: {speedEffect: 0.1, cooldown: 150},
                 },
-                price: 820,
+                price: 600,
+                description: "Freezes balloons for longer achieving better control."
+            },
+            {
+                name: "Winter Watermelon level 2",
+                arrow: {
+                    freeze: {speedEffect: 0.05, cooldown: 300},
+                },
+                cooldown: 150,
+                price: 1500,
                 description: "Freezes balloons for longer achieving better control."
             },
         ],
@@ -935,7 +972,7 @@ const MONKEY_DATA = [
                 water: true,
                 target: true,
                 armoredBalloons: true,
-                range: 2500,
+                range: 500,
                 cooldown: 60,
                 price: 700,
                 size: 1.6,
@@ -948,43 +985,119 @@ const MONKEY_DATA = [
             {
                 name: "Submarine Left level 1",
                 arrow: {
+                    type: 3,
                     strength: 1,
-                    health: 2,
+                    health: 10,
+                    speed: 0.7,
+                    range: 2500,
+                    size: 0.8,
+                    offset: [[13, 0], [0, 0], [-13, 0]],
+                    alternating: true,
+                    guided: true,
+                    constTarget: false,
+                    hitControl: false,
                 },
-                range: 260,
-                price: 140,
-                description: "Increases health for better durability."
+                range: 1000,
+                cooldown: 50,
+                price: 240,
+                description: "Increases range for better reach."
             },
             {
                 name: "Submarine Left level 2",
-                range: 270,
-                price: 420,
-                description: "Extends range for greater reach."
+                arrow: {
+                    type: 3,
+                    strength: 1,
+                    health: 10,
+                    speed: 0.7,
+                    range: 2500,
+                    size: 0.8,
+                    offset: [[13, 0], [0, 0], [-13, 0]],
+                    alternating: true,
+                    guided: true,
+                    constTarget: false,
+                    hitControl: false,
+                },
+                range: 2500,
+                cooldown: 40,
+                price: 820,
+                description: "Maximizes range for superior coverage."
             },
             {
                 name: "Submarine Left level 3",
-                range: 280,
-                price: 620,
-                description: "Maximizes range for superior coverage."
+                arrow: {
+                    type: 3,
+                    strength: 2,
+                    health: 10,
+                    speed: 0.7,
+                    range: 2500,
+                    size: 0.8,
+                    offset: [[13, 0], [0, 0], [-13, 0]],
+                    alternating: true,
+                    guided: true,
+                    constTarget: false,
+                    hitControl: false,
+                },
+                cooldown: 30,
+                price: 1600,
+                description: "Enhances arrow strenth and less cooldown."
             },
         ],
         [
             {
                 name: "Submarine Right level 1",
+                arrow: {
+                    type: 3,
+                    strength: 1,
+                    health: 10,
+                    speed: 0.7,
+                    range: 2500,
+                    size: 0.8,
+                    offset: [[13, 0], [0, 0], [-13, 0]],
+                    alternating: true,
+                    guided: true,
+                    constTarget: false,
+                    hitControl: false,
+                },
                 cooldown: 40,
-                price: 220,
+                price: 350,
                 description: "Reduces cooldown for faster attacks."
             },
             {
                 name: "Submarine Right level 2",
+                arrow: {
+                    type: 3,
+                    strength: 2,
+                    health: 10,
+                    speed: 0.7,
+                    range: 2500,
+                    size: 0.8,
+                    offset: [[13, 0], [0, 0], [-13, 0]],
+                    alternating: true,
+                    guided: true,
+                    constTarget: false,
+                    hitControl: false,
+                },
                 cooldown: 30,
-                price: 420,
+                price: 700,
                 description: "Further reduces cooldown for rapid-fire capabilities."
             },
             {
                 name: "Submarine Right level 3",
-                cooldown: 20,
-                price: 620,
+                arrow: {
+                    type: 3,
+                    strength: 3,
+                    health: 10,
+                    speed: 0.7,
+                    range: 2500,
+                    size: 0.8,
+                    offset: [[13, 0], [0, 0], [-13, 0]],
+                    alternating: true,
+                    guided: true,
+                    constTarget: false,
+                    hitControl: false,
+                },
+                cooldown: 15,
+                price: 2400,
                 description: "Achieves minimum cooldown for ultimate attack speed."
             },
         ],
@@ -998,7 +1111,7 @@ const MONKEY_DATA = [
                 price: 1100,
                 size: 2.2,
                 inferno: {
-                    
+                    strength: 5,
                 },
                 radius: 2,
                 yOffset: -50,
@@ -1013,21 +1126,21 @@ const MONKEY_DATA = [
             }
         },
         [
-            {
-                name: "Sunflower level 1",
-                price: 220,
-                description: "Increases resource generation efficiency."
-            },
-            {
-                name: "Sunflower level 1",
-                price: 220,
-                description: "Increases resource generation efficiency."
-            },
-            {
-                name: "Sunflower level 1",
-                price: 220,
-                description: "Increases resource generation efficiency."
-            },
+            // {
+            //     name: "Sunflower level 1",
+            //     price: 220,
+            //     description: "Increases resource generation efficiency."
+            // },
+            // {
+            //     name: "Sunflower level 1",
+            //     price: 220,
+            //     description: "Increases resource generation efficiency."
+            // },
+            // {
+            //     name: "Sunflower level 1",
+            //     price: 220,
+            //     description: "Increases resource generation efficiency."
+            // },
         ],
     ],
 ]

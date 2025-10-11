@@ -552,7 +552,8 @@ class Factory extends Monkey {
     }
 
     moveMonkey() {
-        if (this.relocating || isGameOver()) { // if monkey is relocating, quit the function
+        // Do not generate money when relocating, game is over, or when between rounds
+        if (this.relocating || isGameOver() || typeof isBetweenRounds !== 'undefined' && isBetweenRounds) {
             return
         }
         this.moneyFactory()

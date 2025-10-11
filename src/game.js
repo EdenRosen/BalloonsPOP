@@ -23,20 +23,20 @@ let pop = new Audio('../sounds/pop.mp3');
 // Gameplay settings
 // var START_MONEY = 650
 // var START_LIVES = 150
-var START_MONEY = 9999999
-var START_LIVES = 1
+var START_MONEY = 65000
+var START_LIVES = 100
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
 const FRAMES_IN_SECOND = 30
 const GAME_SPEEDS = [3, 6]
 const TIME_BETWEEN_ROUND = 100
-const AUTO_START = true
 
 //------------------------------------VARIABLES----------------------------------------\\
 
 // Other constant
 
 // Gameplay state
+var auto_start = false
 var printMenuMonkeyVar = false
 var lives = START_LIVES
 var gameWon = false
@@ -100,6 +100,7 @@ function restart() {
     // Gameplay state
     lives = START_LIVES
     running = true
+    gameWon = false
     balloons = []
     monkeys = []
     arrows = []
@@ -144,7 +145,7 @@ function printGameWon() {
     c.text('YOU WIN!', 180, 560, 230, 'Green', true, "Sans-serif")
     c.rect(730, 680, 310, 120, "rgb(4, 75, 116)")
     const timeText = getTimeString()
-    c.text(timeText, 625, 700, 100, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
+    c.text(timeText, 635, 713, 100, "white", true, "Luckiest Guy", false, isStroke='black', strokeWidth=1)
 
     // print rectangle for background to the time text
 }
