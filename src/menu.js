@@ -50,15 +50,33 @@ function printMenu() {
             }
         }
     }
-    var roundTextHeight = CH*0.9
+    // layout bottom controls (stacked): Speed, Auto-Start, Rush (if enabled)
+    const SPEED_H = 100
+    const AUTO_H = 60
+    const RUSH_H = 100
+    const SPACING = 0
+
+    const ySpeed = CH - 50
+    const yAuto = ySpeed - SPEED_H/2 - SPACING - AUTO_H/2
+    const yRush = yAuto - AUTO_H/2 - SPACING - RUSH_H/2
+
+    // round text should be above top control (rush if present, otherwise auto)
+    let roundTextHeight
     if (isRush) {
-        roundTextHeight = CH*0.8
-        c.rect(MW + TABLE_WIDTH/2, CH-150, TABLE_WIDTH, 100, "rgb(122, 121, 171)")
-        c.text("RUSH", MW + TABLE_WIDTH/2, CH-130, 50, "rgb(155, 1, 115)", true, "Cursive", isMeasureText=true)
+        roundTextHeight = yRush - RUSH_H/2 - 20
+        c.rect(MW + TABLE_WIDTH/2, yRush, TABLE_WIDTH, RUSH_H, "rgb(122, 121, 171)")
+        c.text("RUSH", MW + TABLE_WIDTH/2, yRush + 20, 50, "rgb(155, 1, 115)", true, "Cursive", isMeasureText=true)
+    } else {
+        roundTextHeight = yAuto - AUTO_H/2 - 20
     }
-    
-    // speed button
-    c.rect(MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100, "rgb(22, 121, 171)")
+
+    // auto-start toggle button (stacked above speed)
+    c.rect(MW + TABLE_WIDTH/2, yAuto, TABLE_WIDTH, AUTO_H, auto_start ? "rgb(60,200,100)" : "rgb(200,60,60)")
+    // slightly smaller font and vertically centered within the AUTO_H
+    c.text("Auto-Start: " + (auto_start ? "ON" : "OFF"), MW + TABLE_WIDTH/2, yAuto + 6, 20, "White", true, "Sans-serif", isMeasureText=true)
+
+    // speed button (bottom)
+    c.rect(MW + TABLE_WIDTH/2, ySpeed, TABLE_WIDTH, SPEED_H, "rgb(22, 121, 171)")
 
     let speedString = ""
     if (isBetweenRounds) {
@@ -70,7 +88,8 @@ function printMenu() {
     }
     c.text("Round: "+currentRound, MW + TABLE_WIDTH/2, roundTextHeight, 30, "White", true, "Cursive", isMeasureText=true)
 
-    c.text(speedString, MW + TABLE_WIDTH/2, CH-30, 55, "rgb(7, 65, 115)", true, "Cursive", isMeasureText=true)
+    // align speed icon/text to the center of the speed button
+    c.text(speedString, MW + TABLE_WIDTH/2, ySpeed + 20, 55, "rgb(7, 65, 115)", true, "Cursive", isMeasureText=true)
     
 }
 
@@ -92,7 +111,22 @@ function menu_click() { // x and y coordinates
             times.push([date, 0, speedFactor])
         }
         return -1
-    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-150, TABLE_WIDTH, 100)) { // rush
+    }
+    // Recompute button positions (same logic as in printMenu) so clicks align with visuals
+    const SPEED_H = 100
+    const AUTO_H = 80
+    const RUSH_H = 100
+    const SPACING = 0
+
+    const ySpeed = CH - 50
+    const yAuto = ySpeed - SPEED_H/2 - SPACING - AUTO_H/2
+    const yRush = yAuto - AUTO_H/2 - SPACING - RUSH_H/2
+
+    // Auto-start toggle button area
+    if (isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, yAuto, TABLE_WIDTH, AUTO_H)) {
+        auto_start = !auto_start
+        return -1
+    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, yRush, TABLE_WIDTH, RUSH_H)) { // rush
         const date = new Date()
         if (isBetweenRounds) {
             isBetweenRounds = false

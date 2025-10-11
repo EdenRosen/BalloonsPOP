@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap">
+    <link rel="preload" href="/images/general/maps_bg.jpg" as="image">
+    <link rel="preload" href="/images/general/bg2.jpg" as="image">
     <link rel='stylesheet' href='style/style.css'/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Edu+NSW+ACT+Foundation" rel="stylesheet">
@@ -24,18 +26,20 @@
     <script defer src="src/menu.js"></script>
     <script defer src="src/animate.js"></script>
     <script defer src="src/imagesLoader.js"></script>
-    <script defer src="src/script.js"></script>
+    <script defer src="src/game.js"></script>
     <script defer src="src/monkeyMenu.js"></script>
     <script defer src="src/startingUI.js"></script>
+    <script defer src="src/launch.js"></script>
     <title>Balloons Pop - Eden & Ziv</title>
 </head>
 <body id="body">
     <h1>Balloons Pop</h1>
     <!-- <p>Brought to you by Eden and Ziv</p> -->
     <canvas></canvas>
-    <br>
-    <button class="gameplayButton" onclick="restart()">RESTART</button>
-    <button class="gameplayButton" onclick="restartChooseMap()">Home Page</button>
+    <div>
+      <button class="gameplayButton" onclick="restart()">RESTART</button>
+        <button class="gameplayButton" onclick="restartChooseMap()">Home Page</button>  
+    </div>
     <footer>
         <p style="font-size: 15px;">&copy; 2023 - 2025 Eden Rosen & Ziv Behar</p>
     </footer>

@@ -32,7 +32,7 @@ function animate() {
 }
 
 function handleRounds() {
-	if (AUTO_START && currentRound > 1) {
+	if (auto_start && currentRound > 1) {
 		isBetweenRounds = false
 	}
 	
@@ -62,15 +62,20 @@ function nextRound(roundEnded = false) {
 	if (gameWon) {
 		return
 	}
-	if (lives > 0 && currentRound > 1){//ROUNDS_DATA.length) {
+	const maxRound = typeof ROUNDS_DATA !== 'undefined' ? ROUNDS_DATA.length : 1
+	if (lives > 0 && currentRound > maxRound) {
 		// if all rounds are done
-		if (roundEnded) 
+		if (roundEnded) {
 			gameWon = true
 			times[times.length-1][1] = new Date()
+		}
 		return
 	}
 	if (!isGameOver()) {
 		currentRound++
+		if (!auto_start) {
+			isBetweenRounds = true
+		}
 		setupRound(currentRound)
 		times[times.length-1][1] = new Date()
 	}

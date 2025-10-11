@@ -2,10 +2,6 @@
     font-family: 'Nunito', sans-serif;
 }
 
-html {
-    height: 100%;
-}
-
 body {
     text-align: center;
     background: rgb(126, 126, 126);
@@ -17,6 +13,11 @@ body {
     background-position-x: center;
     margin: 0;
     color: white;
+    /* layout the page as a column so the canvas can size relative to available space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
 }
 
 * {
@@ -35,13 +36,34 @@ h1 {
 }
 
 canvas {
-    
-    background: rgb(0, 0, 0);
-    /*background: rgb(208, 245, 252);*/
-    /* border-radius: 16px; */
-    width: 100%;
-    min-width: 600px;
-    max-width: 1400px;
+    /* background: rgb(0, 0, 0); */
+    background-image: url("../images/general/maps_bg.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    border: 2px solid #444;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.7);
+    /* Preserve the game's design aspect ratio (1700x1080) while letting the canvas
+       scale down to fit the viewport without distortion or scrollbars. */
+    aspect-ratio: 1700 / 1080;
+    /* Compute the largest width that still fits viewport width or height.
+       The multiplier 1.574074... = 1700 / 1080. */
+    width: min(1100px, calc(100vw - 40px), calc((100vh - 180px) * 1.5740740741));
+    height: auto; /* keep aspect ratio */
+    max-height: calc(100vh - 180px); /* reserve space for header, buttons and footer; tweak if needed */
+    display: block;
+    box-sizing: border-box;
+}
+
+/* For short viewports, ensure the canvas height doesn't exceed available space and let width shrink */
+@media (max-height: 700px) {
+    canvas {
+        /* On very short screens, limit canvas height and let width scale with aspect-ratio */
+        height: calc(100vh - 140px);
+        width: calc((100vh - 140px) * 1.5740740741);
+        max-width: calc(100vw - 40px);
+    }
 }
 
 .gameplayButton {
