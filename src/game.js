@@ -19,17 +19,18 @@ const SHOW_WAY_LINES = false
 const SHOW_PONDS = false
 const WAY_LINE_WIDTH = 50
 
-let pop = new Audio('../sounds/pop.mp3');
+let pop = new Audio('../sounds/pop3.mp3');
+// pop.currentTime = 0.8
+// pop.playbackRate = 1.9
 // Gameplay settings
-// var START_MONEY = 650
-// var START_LIVES = 150
-var START_MONEY = 65000
-var START_LIVES = 100
+var START_MONEY = 450000
+var START_LIVES = 150
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
 const FRAMES_IN_SECOND = 30
 const GAME_SPEEDS = [3, 6]
 const TIME_BETWEEN_ROUND = 100
+const POP_VOLUME = 0.06
 
 //------------------------------------VARIABLES----------------------------------------\\
 

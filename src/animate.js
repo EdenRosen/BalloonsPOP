@@ -38,9 +38,13 @@ function handleRounds() {
 	
 	if (!isBetweenRounds) {
 		
-		if (activeClusters.length == 0 && balloons.length == 0) { // if round ended
-			nextRound(roundEnded = true)
-		} else {
+		if (activeClusters.length == 0 && balloons.length == 0) { // if no more balloons on screen and no more to deploy
+			if (!auto_start) {
+				isBetweenRounds = true
+			} else {
+				nextRound()
+			}
+		} else { // deploy balloons to the board from active clusters
 			for (let i = 0; i < activeClusters.length; i++) {
 				const cluster = activeClusters[i]
 				const deploy = 
@@ -58,25 +62,22 @@ function handleRounds() {
 	}
 }
 
-function nextRound(roundEnded = false) {
+function nextRound() {
 	if (gameWon) {
 		return
 	}
+
+	// if all rounds are done
 	const maxRound = typeof ROUNDS_DATA !== 'undefined' ? ROUNDS_DATA.length : 1
 	if (lives > 0 && currentRound > maxRound) {
-		// if all rounds are done
-		if (roundEnded) {
-			gameWon = true
-			times[times.length-1][1] = new Date()
-		}
+		gameWon = true
+		times[times.length-1][1] = new Date()
 		return
 	}
 	if (!isGameOver()) {
 		currentRound++
-		if (!auto_start) {
-			isBetweenRounds = true
-		}
 		setupRound(currentRound)
+		isBetweenRounds = false
 		times[times.length-1][1] = new Date()
 	}
 }

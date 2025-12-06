@@ -3,6 +3,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Monkey",
+                description: "Just a monkey that throws arrows at balloons.",
                 arrow: {
                     type: 1,
                     strength: 1,
@@ -89,6 +90,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Tack Shooter",
+                description: "Shoots a spread of tacks that can hit multiple balloons.",
                 arrow: {
                     type: 1,
                     strength: 1,
@@ -271,6 +273,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Pikachu",
+                description: "Shoots special energy balls that zap balloons with electricity.",
                 arrow: {
                     type: 6,
                     strength: 1,
@@ -433,6 +436,7 @@ const MONKEY_DATA = [
         { 
             origin: {
                 name: "Mario",
+                description: "Shoots fire!!!",
                 arrow: {
                     type: 2,
                     strength: 1,
@@ -560,6 +564,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Red shooter",
+                description: "Machine gun that shoots arrows.",
                 arrow: {
                     type: 1,
                     strength: 1,
@@ -734,6 +739,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Rocket Launcher",
+                description: "Launches explosive rockets, dealing area damage.",
                 arrow: {
                     type: 7,
                     strength: 1,
@@ -864,6 +870,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Sunflower",
+                description: "If you like a lot of money, this one is for you.",
                 range: 250,
                 cooldown: 500,
                 price: 1100,
@@ -898,6 +905,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Winter Watermelon",
+                description: "Shoots freezing balistic watermelons that slow down balloons.",
                 range: 450,
                 cooldown: 200,
                 price: 1600,
@@ -956,6 +964,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Submarine",
+                description: "Shoots guided missiles that tracks balloons from far distances.",
                 arrow: {
                     type: 3,
                     strength: 1,
@@ -1106,6 +1115,7 @@ const MONKEY_DATA = [
         {
             origin: {
                 name: "Inferno Tower",
+                description: "Attacks using 5 deadly rays that deals increasing damage over time.",
                 range: 250,
                 cooldown: 500,
                 price: 1100,

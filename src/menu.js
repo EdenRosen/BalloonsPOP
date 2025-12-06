@@ -100,8 +100,8 @@ function menu_click() { // x and y coordinates
     if (isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, CH-50, TABLE_WIDTH, 100)) {
         if (isBetweenRounds) {
             // new round starts
-            isBetweenRounds = false
 			times.push([new Date(), 0, speedFactor])
+            nextRound()
         } else {
             const index = (GAME_SPEEDS.indexOf(speedFactor)+1)%2
             speedFactor = GAME_SPEEDS[index]
@@ -114,7 +114,7 @@ function menu_click() { // x and y coordinates
     }
     // Recompute button positions (same logic as in printMenu) so clicks align with visuals
     const SPEED_H = 100
-    const AUTO_H = 80
+    const AUTO_H = 60
     const RUSH_H = 100
     const SPACING = 0
 
@@ -126,16 +126,10 @@ function menu_click() { // x and y coordinates
     if (isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, yAuto, TABLE_WIDTH, AUTO_H)) {
         auto_start = !auto_start
         return -1
-    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, yRush, TABLE_WIDTH, RUSH_H)) { // rush
+    } else if (isRush && isInsideRectangle(mouse.x, mouse.y, MW + TABLE_WIDTH/2, yRush, TABLE_WIDTH, RUSH_H)) { // rush button clilcked
         const date = new Date()
-        if (isBetweenRounds) {
-            isBetweenRounds = false
-			times.push([new Date(), 0, speedFactor])
-        } else {
-            nextRound()
-            times[times.length-1][1]=date
-            times.push([date, 0, speedFactor])
-        }
+        times.push([date, 0, speedFactor])
+        nextRound()
     }
 
 
