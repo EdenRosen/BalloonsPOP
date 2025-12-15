@@ -466,8 +466,6 @@ class Shooter extends Monkey {
                 freeze: arr.freeze,
                 monkeyParent: me,
             })
-            console.log(arrow)
-
             arrows.push(arrow)
 
         }

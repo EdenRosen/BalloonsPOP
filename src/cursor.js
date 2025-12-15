@@ -8,6 +8,7 @@ AREA_TO_MESSAGE = {
     "Start Next Round Button": "Start the next round. Click to begin",
     "Start First Round Button": "Start the first round. Click to begin",
     "Rush Button": "Rush to the next round. Click to proceed",
+    "AutoStart Button": "Once a round ends, continue to the next round immediately. Click to proceed",
     "Change Speed Button": "Adjust the game speed. Click to toggle speed",
     "Relocate Button": "Relocate the monkey to a new position. Click to proceed.",
     "Sell Button": "Sell this monkey for a portion of its cost. Click to sell.",
@@ -119,9 +120,18 @@ class Cursor {
                 return 'Change Speed Button';
             }
         }
-
+        // layout bottom controls (stacked): Speed, Auto-Start, Rush (if enabled)
+        const SPEED_H = 100
+        const AUTO_H = 60
+        const RUSH_H = 100
+        const SPACING = 0
+        const ySpeed = CH - 50
+        const yAuto = ySpeed - SPEED_H/2 - SPACING - AUTO_H/2
+        const yRush = yAuto - AUTO_H/2 - SPACING - RUSH_H/2
         // Check if the mouse is over the rush button (if isRush is true)
-        if (isRush && isInsideRectangle(this.x, this.y, MW + TABLE_WIDTH / 2, CH - 150, TABLE_WIDTH, 100)) {
+        if (isInsideRectangle(this.x, this.y, MW + TABLE_WIDTH / 2, yAuto, TABLE_WIDTH, AUTO_H)) {
+            return 'AutoStart Button';
+        } else if (isRush && isInsideRectangle(this.x, this.y, MW + TABLE_WIDTH / 2, yRush, TABLE_WIDTH, RUSH_H)) {
             return 'Rush Button';
         }
 
@@ -190,12 +200,13 @@ class Cursor {
         this.message = ""
         if (hoveredSection.startsWith("Monkey")) { // add more information here....
             // Extract the monkey index
-            const monkeyIndex = parseInt(hoveredSection.split(" ")[1]);
-            const price = MONKEY_DATA[monkeyIndex - 1][0].origin.price;
-            const canBuy = price <= money;
+            const monkeyIndex = parseInt(hoveredSection.split(" ")[1])
+            const monkeyOrigin = MONKEY_DATA[monkeyIndex - 1][0].origin
+            const canBuy = monkeyOrigin.price <= money;
 
-            this.message = `Monkey ${monkeyIndex}: Costs $${price}.`;
-            this.message += canBuy ? " Click to purchase." : " Not enough money.";
+            this.message = `${monkeyOrigin.name}`
+            this.message += monkeyOrigin.description ? `: ${monkeyOrigin.description}` : "."
+            this.message += canBuy ? " Click to purchase" : " Not enough money";
         } else if (hoveredSection.startsWith("Upgrade Button")) {
 
             // work on the diff messages for update monkey... ---------------------------------------------------------------------------------------------------------------

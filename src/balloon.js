@@ -188,6 +188,9 @@ class Balloon {
 			height * size,
 			generalImages['pop'],
 		)
+		let p = pop.cloneNode()
+		p.volume = POP_VOLUME
+		p.play()
 	}
 
 	// This function is intended to print a balloon on a canvas.
