@@ -23,7 +23,7 @@ let pop = new Audio('../sounds/pop3.mp3');
 // pop.currentTime = 0.8
 // pop.playbackRate = 1.9
 // Gameplay settings
-var START_MONEY = 450000
+var START_MONEY = 450
 var START_LIVES = 150
 const TABLE_HEIGHT = 300
 const NEVER_RELOCATE = false
